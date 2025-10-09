@@ -1,0 +1,71 @@
+# ----------------------
+# Archivos de Python
+# ----------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+
+# ----------------------
+# Entornos virtuales
+# ----------------------
+venv/
+env/
+.venv/
+.env/
+
+# ----------------------
+# Configuración local
+# ----------------------
+*.env
+.env.*
+.envrc
+
+# ----------------------
+# Alembic (migraciones de BD)
+# ----------------------
+alembic/versions/*.pyc
+alembic/versions/__pycache__/
+# (si quieres ignorar todas las migraciones descomenta la siguiente línea)
+# alembic/versions/
+
+# ----------------------
+# Archivos de IDEs/editores
+# ----------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ----------------------
+# Archivos de logs
+# ----------------------
+*.log
+
+# ----------------------
+# Archivos de pruebas
+# ----------------------
+.coverage
+pytest_cache/
+htmlcov/
+
+# ----------------------
+# Archivos temporales
+# ----------------------
+*.DS_Store
+*.bak
+*.tmp
+*.cache
+Thumbs.db
+
+# ----------------------
+# Dependencias de Node.js
+# ----------------------
+node_modules/
+dist/
+
+# ----------------------
+# Vite
+# ----------------------
+.vite/

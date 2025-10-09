@@ -1,0 +1,11 @@
+/* src/global.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tus estilos globales opcionales */
+body {
+    font-family: system-ui, sans-serif;
+    background-color: #f4f7f9;
+    color: #111827;
+}
