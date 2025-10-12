@@ -5,11 +5,13 @@ export function CardMainTopicComponent() {
   return (
     <div className="w-96 h-72 bg-white border border-gray-300 rounded-lg shadow-sm flex flex-col justify-between overflow-hidden">
       {/* CABECERA CON FONDO DIFERENTE */}
-      <div className="bg-gradient-to-r from-primary to-secondary text-white px-4 py-4 text-center">
-        <h5 className="text-lg font-bold tracking-tight">
-          Noteworthy technology and 2025 entre 2021
-        </h5>
-      </div>
+      <a href="#">
+        <div className="bg-gradient-to-r from-primary to-secondary text-white px-4 py-4 text-center">
+          <h5 className="text-lg font-bold tracking-tight">
+            Noteworthy technology and 2025 entre 2021
+          </h5>
+        </div>
+      </a>
 
       {/* CONTENIDO DEL CARD */}
       <div className="p-6 flex-1">

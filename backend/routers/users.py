@@ -27,12 +27,15 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60))
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 # Dependencia para obtener la sesión de la BD
+
+
 def get_db():
     db = database.SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
 
 @router.post("/add", response_model=user_schema.UserResponse)
 def create_user(user: user_schema.UserCreate, db: Session = Depends(get_db)):
@@ -57,7 +60,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 @router.post("/login")
 def login_user(credentials: user_schema.UserLogin, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(
-        (models.User.email == credentials.email) | (models.User.username == credentials.username)).first()
+        models.User.email == credentials.email).first()
     if not user or not verify_password(credentials.password, user.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
@@ -82,10 +85,19 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     return user
 
 
+@router.get("/by-email/{email}", response_model=user_schema.UserResponse)
+def get_user_by_email(email: str, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
 @router.post("/delete")
 def delete_user(identifier: str, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(
-        (models.User.username == identifier) | (models.User.email == identifier)
+        (models.User.username == identifier) | (
+            models.User.email == identifier)
     ).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

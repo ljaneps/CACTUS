@@ -1,16 +1,28 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import { useAuth } from "../context/AuthContext";
+import { ButtonComponent } from "./buttons/ButtonComponent";
+import { ArrowRight } from "lucide-react";
 
-function LoginComponent({ onLogin }) {
+export default function LoginComponent() {
   const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
+    setLoading(true);
 
     try {
+      console.log("Enviando login:", { email, password });
+
       const response = await fetch("http://127.0.0.1:8000/users/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -21,89 +33,87 @@ function LoginComponent({ onLogin }) {
       const data = await response.json();
 
       setMessage("✅ Login exitoso");
-      localStorage.setItem("token", data.access_token);
-      if (onLogin) onLogin(data.access_token);
+      const decoded = jwtDecode(data.access_token);
+      login(decoded, data.access_token);
     } catch (err) {
-      setMessage("❌ Credenciales incorrectas o error de conexión", err);
+      setError(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-      <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-        <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-primary">
+    <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+        <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-primary">
           Sign in to your account
         </h2>
       </div>
 
-      <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form onSubmit={handleSubmit} class="space-y-6">
+      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label
-              for="email"
-              class="block text-sm/6 font-medium text-gray-900">
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-900">
               Email or username
             </label>
-            <div class="mt-2">
+            <div className="mt-2">
               <input
                 id="email"
                 type="email"
                 name="email"
                 required
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                autocomplete="email"
-                class="block w-full border-2 border-gray-300 rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                autoComplete="email"
+                className="block w-full border-2 border-gray-300 rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-primary sm:text-sm"
               />
             </div>
           </div>
 
           <div>
-            <div class="flex items-center justify-between">
-              <label
-                for="password"
-                class="block text-sm/6 font-medium text-gray-900">
-                Password
-              </label>
-              {/* <div class="text-sm">
-                <a
-                  href="#"
-                  class="font-semibold text-primary-light hover:text-indigo-300">
-                  Forgot password?
-                </a>
-              </div> */}
-            </div>
-            <div class="mt-2">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-900">
+              Password
+            </label>
+            <div className="mt-2">
               <input
                 id="password"
                 type="password"
                 name="password"
                 required
+                value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                autocomplete="current-password"
-                class="block w-full border-2 border-gray-300 rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                autoComplete="current-password"
+                className="block w-full border-2 border-gray-300 rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-primary sm:text-sm"
               />
             </div>
           </div>
 
           <div>
-            <button
-              type="submit"
-              class="flex w-full justify-center rounded-md bg-primary px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-primary-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
-              Sign in
-            </button>
+            <ButtonComponent
+              text="Sign in"
+              icon={ArrowRight}
+              disabled={loading}
+              fullWidth
+              primary>
+              {loading ? "Loading..." : "Sign in"}
+            </ButtonComponent>
           </div>
         </form>
 
         <button
           type="button"
           onClick={() => navigate("/register")}
-          class="mt-6 flex w-full justify-center hover:text-primary-medium px-3 py-1.5 text-sm/6 font-semibold text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/30">
+          className="mt-6 flex w-full justify-center hover:text-primary-medium px-3 py-1.5 text-sm font-semibold text-primary">
           ← Create account
         </button>
-        {message && <p>{message}</p>}
+
+        {message && <p className="text-green-600">{message}</p>}
+        {error && <p className="text-red-600">{error}</p>}
       </div>
     </div>
   );
 }
-
-export default LoginComponent;
