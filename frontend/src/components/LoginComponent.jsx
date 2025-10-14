@@ -8,7 +8,6 @@ import { ArrowRight } from "lucide-react";
 export default function LoginComponent() {
   const navigate = useNavigate();
   const { login } = useAuth();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -32,9 +31,10 @@ export default function LoginComponent() {
       if (!response.ok) throw new Error("Error en el login");
       const data = await response.json();
 
-      setMessage("✅ Login exitoso");
       const decoded = jwtDecode(data.access_token);
-      login(decoded, data.access_token);
+      login(decoded, data);
+      setMessage("✅ Login exitoso");
+      navigate("/main");
     } catch (err) {
       setError(`Error: ${err.message}`);
     } finally {

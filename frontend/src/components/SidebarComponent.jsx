@@ -7,7 +7,7 @@ import FavIcon from "../assets/icons/icon_fav_primary.svg";
 import GoalIcon from "../assets/icons/icon_goal_primary.svg";
 import TimelineIcon from "../assets/icons/icon_timeline_primary.svg";
 
-const navigation = [{ name: "Favoritos", icon: FavIcon, current: true }];
+const navigation = [{ name: "Favoritos", icon: FavIcon, current: false }];
 
 const progreso = [
   { title: "Tarea 1", icon: BoxBajoIcon, porcentaje: 10, color: "bajo" },
@@ -28,7 +28,7 @@ function classNames(...classes) {
 
 export default function SidebarComponent() {
   return (
-    <aside className="w-68 flex flex-col bg-white border-r">
+    <aside className="w-80 flex flex-col bg-white border-r">
       {/* Logo */}
       <div className="flex h-32 items-center justify-center border-b">
         <img
@@ -38,7 +38,7 @@ export default function SidebarComponent() {
         />
       </div>
       {/* User profile */}
-      <div className="border-t p-4 flex items-center justify-center space-x-3">
+      <div className="border-t px-2 py-6 flex items-center justify-center space-x-3">
         <div>
           <p className="text-sm font-medium text-gray-700">
             Bienveid@ Tom Cook
@@ -54,18 +54,18 @@ export default function SidebarComponent() {
             href="#"
             className={classNames(
               item.current
-                ? "bg-indigo-50 text-indigo-600"
-                : "text-gray-700 hover:bg-gray-50 hover:text-indigo-600",
-              "group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+                ? "bg-primary/10 text-primary"
+                : "text-primary hover:text-primary-medium hover:bg-primary/5",
+              "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors duration-200"
             )}>
             <img
               src={item.icon}
               alt=""
               className={classNames(
                 item.current
-                  ? "text-indigo-600"
-                  : "text-gray-400 group-hover:text-indigo-600",
-                "mr-3 h-6 w-6 flex-shrink-0"
+                  ? "text-primary"
+                  : "text-primary group-hover:text-primary-medium",
+                "mr-3 h-6 w-6 flex-shrink-0 transition-colors duration-200"
               )}
             />
             {item.name}
@@ -74,13 +74,13 @@ export default function SidebarComponent() {
 
         {/* Objetivo */}
         <div className="mt-6">
-          <a className="group flex items-center px-3 py-2">
+          <a className="group flex items-center px-2 py-4">
             <img
               src={GoalIcon}
               alt="Avatar"
               className="mr-3 h-5 w-5 flex-shrink-0"
             />
-            <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
               Obetivo
             </h3>
           </a>
@@ -94,13 +94,13 @@ export default function SidebarComponent() {
 
         {/* Progreso */}
         <div className="mt-6">
-          <a className="group flex items-center px-3 py-2">
+          <a className="group flex items-center px-2 py-4">
             <img
               src={TimelineIcon}
               alt="Avatar"
               className="mr-3 h-5 w-5 flex-shrink-0"
             />
-            <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
               Progreso
             </h3>
           </a>
@@ -127,7 +127,9 @@ export default function SidebarComponent() {
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
                     <div
-                      className={`h-full transition-all duration-300 ${getColorClass(item.color)}`}
+                      className={`h-full transition-all duration-300 ${getColorClass(
+                        item.color
+                      )}`}
                       style={{ width: `${item.porcentaje}%` }}></div>
                   </div>
                 </div>

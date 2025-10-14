@@ -5,25 +5,42 @@ import ListOffIcon from "../../assets/icons/icon_list_secondary.svg";
 import GoOnIcon from "../../assets/icons/icon_go_primary.svg";
 import GoOffIcon from "../../assets/icons/icon_go_secondary.svg";
 
-export function CardSubTopicComponent() {
+export function CardSubTopicComponent({
+  title,
+  description,
+  onStudyClick,
+  onListClick,
+  onGoClick,
+  href,
+}) {
   return (
     <div className="w-96 h-72 p-6 bg-white border border-gray-300 rounded-lg shadow-sm dark:bg-white flex flex-col justify-between">
+      {/* --- CONTENIDO --- */}
       <div>
-        <a href="#">
+        {href ? (
+          <a href={href}>
+            <h5 className="mb-5 text-lg font-bold tracking-tight text-gray-900 dark:text-primary text-center hover:text-primary transition-colors">
+              {title}
+            </h5>
+          </a>
+        ) : (
           <h5 className="mb-5 text-lg font-bold tracking-tight text-gray-900 dark:text-primary text-center">
-            Noteworthy technology 2021
+            {title}
           </h5>
-        </a>
+        )}
+
         <p className="mb-2 font-normal text-gray-700 dark:text-gray-400 text-justify">
-          Here are the biggest enterprise technology acquisitions of 2021 so
-          far, in reverse chronological order.
+          {description}
         </p>
       </div>
 
       {/* --- BOTONES INFERIORES --- */}
       <div className="flex justify-around mt-2 border-t border-gray-200 pt-3">
-        {/* Botón 1 */}
-        <button className="group transition">
+        {/* Botón 1 - Study */}
+        <button
+          className="group transition"
+          onClick={onStudyClick}
+          title="Estudiar">
           <img
             src={StudyOnIcon}
             alt="Study"
@@ -36,8 +53,11 @@ export function CardSubTopicComponent() {
           />
         </button>
 
-        {/* Botón 2 */}
-        <button className="group transition">
+        {/* Botón 2 - List */}
+        <button
+          className="group transition"
+          onClick={onListClick}
+          title="Ver lista">
           <img
             src={ListOnIcon}
             alt="List"
@@ -50,8 +70,8 @@ export function CardSubTopicComponent() {
           />
         </button>
 
-        {/* Botón 3 */}
-        <button className="group transition">
+        {/* Botón 3 - Go */}
+        <button className="group transition" onClick={onGoClick} title="Ir">
           <img src={GoOnIcon} alt="Go" className="w-8 h-8 group-hover:hidden" />
           <img
             src={GoOffIcon}

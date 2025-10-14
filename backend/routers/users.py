@@ -22,7 +22,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60))
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60*24))
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -104,3 +104,5 @@ def delete_user(identifier: str, db: Session = Depends(get_db)):
     db.delete(user)
     db.commit()
     return {"detail": "User deleted"}
+
+

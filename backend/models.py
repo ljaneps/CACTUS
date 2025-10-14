@@ -27,10 +27,13 @@ class Topic(Base):
 
     topic_code = Column(Integer, primary_key=True,index=True, autoincrement=True)
     topic_title = Column(String, nullable=False)
+    category = Column(String, nullable=False)
     description = Column(String)
 
-    subtopics = relationship("Subtopic", back_populates="topic")
-    users = relationship("UserTopic", back_populates="topic")
+    subtopics = relationship(
+        "Subtopic", back_populates="topic", cascade="all, delete-orphan")
+    users = relationship("UserTopic", back_populates="topic",
+                         cascade="all, delete-orphan")
 
 ##########################################################################
 #                              SUBTOPICS                                 #
@@ -45,7 +48,8 @@ class Subtopic(Base):
     description = Column(String)
 
     topic = relationship("Topic", back_populates="subtopics")
-    flashcards = relationship("Flashcard", back_populates="subtopic")
+    flashcards = relationship("Flashcard", back_populates="subtopic",
+                              cascade="all, delete-orphan")
 
 ##########################################################################
 #                             FLASHCARDS                                 #
@@ -60,8 +64,10 @@ class Flashcard(Base):
     explanation = Column(String)
 
     subtopic = relationship("Subtopic", back_populates="flashcards")
-    questions = relationship("Question", back_populates="flashcard")
-    users = relationship("UserFlashcard", back_populates="flashcard")
+    questions = relationship(
+        "Question", back_populates="flashcard", cascade="all, delete-orphan")
+    users = relationship(
+        "UserFlashcard", back_populates="flashcard", cascade="all, delete-orphan")
 
 ##########################################################################
 #                               QUESTIONS                                #
@@ -79,13 +85,13 @@ class Question(Base):
 
     flashcard = relationship("Flashcard", back_populates="questions")
     options = relationship("Option", back_populates="question", cascade="all, delete-orphan")
-    users = relationship("UserQuestion", back_populates="question")
+    users = relationship(
+        "UserQuestion", back_populates="question", cascade="all, delete-orphan")
 
 
 ##########################################################################
 #                                OPTIONS                                 #
 ##########################################################################
-
 
 class Option(Base):
     __tablename__ = "options"

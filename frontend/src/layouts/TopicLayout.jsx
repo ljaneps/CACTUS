@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import HeaderComponent from "../components/HeaderComponent";
-import SidebarComponent from "../components/SidebarComponent";
+import SidebarInitComponent from "../components/SidebarInitComponent";
 import { Menu, X } from "lucide-react"; // iconos modernos
 
-export default function MainLayout() {
+export default function TopicLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -16,7 +16,7 @@ export default function MainLayout() {
       <div className="flex flex-1 relative">
         {/* SIDEBAR MODO ESCRITORIO */}
         <aside className="hidden lg:flex w-80 flex-col border-r bg-white">
-          <SidebarComponent />
+          <SidebarInitComponent />
         </aside>
 
         {/* SIDEBAR MODO MÓVIL */}
@@ -36,7 +36,7 @@ export default function MainLayout() {
                   <X className="h-6 w-6" />
                 </button>
               </div>
-              <SidebarComponent />
+              <SidebarInitComponent />
             </div>
           </>
         )}

@@ -6,18 +6,20 @@
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from backend.database import SessionLocal
-from backend.schemas.topic import TopicSchema
-from backend.cruds.topic import save_topic_from_schema
+from backend.schemas .topic import *
+from backend.schemas import topic as topic_schema
+from backend.schemas import user as user_schema
+from backend.cruds.topic import *
 from backend.routers.users import get_current_user
 import backend.models as models
-import backend.schemas.user as user_schema
+
 
 import openai
 from openai import OpenAI
 
-router = APIRouter(prefix="/topic", tags=["Topics"])
+router = APIRouter(prefix="/topics", tags=["Topics"])
 
 
 def get_db():
@@ -60,12 +62,14 @@ async def generar_temario(req: TemaRequest):
 
 @router.post("/generar-temario-mock", response_model=TopicSchema)
 async def generar_temario_mock(
+    topic_form: TopicFormSchema,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
 
     mock_data = {
         "titulo": "Biología Celular",
+        "categoria": "Ciencia",
         "descripcion": "La biología celular estudia la estructura, función y procesos de las células, que son la unidad básica de la vida.",
         "subtemas": [
             {
@@ -149,7 +153,7 @@ async def generar_temario_mock(
                                     {"letter": "D", "option": "Glucógeno",
                                         "explanation": ""}
                                 ],
-                                "respuesta_correcta": "ATP",
+                                "respuesta_correcta": "B",
                             },
                             {
                                 "enunciado": "¿En qué orgánulo ocurre la mayor parte de la respiración celular?",
@@ -163,7 +167,7 @@ async def generar_temario_mock(
                                     {"letter": "D", "option": "Lisosoma",
                                         "explanation": ""}
                                 ],
-                                "respuesta_correcta": "Mitocondria",
+                                "respuesta_correcta": "B",
                             }
                         ]
                     }
@@ -172,7 +176,69 @@ async def generar_temario_mock(
         ]
     }
     topic_schema = TopicSchema(**mock_data)
-    #save_topic_from_schema(db, topic_schema)
+
+    new_tocip = save_topic_from_schema(db, topic_schema)
+
+    save_user_topic(db, current_user.username, topic_id=new_tocip.topic_code,
+                    date_goal=topic_form.objetivo)
+
     print("Current user:", current_user.username)
+    print("Topic to save:", topic_form.tema)
+    print("Topic date:", topic_form.objetivo)
 
     return topic_schema
+
+
+# Todos los TOPIC
+@router.get("/topics", response_model=list[topic_schema.TopicInfoSchema])
+def get_all_topics(db: Session = Depends(get_db)):
+    topics = db.query(models.Topic).all()
+    if not topics:
+        raise HTTPException(status_code=404, detail="No topics found")
+    return topics   
+
+
+#################################
+#      TOPICS por USUARIO       #
+#################################
+
+@router.get("/topics-by-user/{username}", response_model=list[topic_schema.UserTopicBasicSchema])
+def get_user_topics(username: str, db: Session = Depends(get_db)):
+    user_topics = (
+        db.query(models.UserTopic)
+        .join(models.Topic)
+        .filter(models.UserTopic.username == username)
+        .all()
+    )
+
+    if not user_topics:
+        raise HTTPException(
+            status_code=404, detail="No topics found for this user")
+
+    return user_topics
+
+#################################
+#    TEMARIO por TOPIC CODE     #
+#################################
+
+
+@router.get("/topic-detail/{topic_code}", response_model=topic_schema.TopicResponseSchema)
+def get_topic_detail(topic_code: int, db: Session = Depends(get_db)):
+    topic = (
+        db.query(models.Topic)
+        .options(
+            joinedload(models.Topic.subtopics)
+            .joinedload(models.Subtopic.flashcards)
+            .joinedload(models.Flashcard.questions)
+            .joinedload(models.Question.options)
+        )
+        .filter(models.Topic.topic_code == topic_code)
+        .first()
+    )
+
+    if not topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+
+    return topic
+
+
