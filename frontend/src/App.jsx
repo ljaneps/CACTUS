@@ -12,32 +12,44 @@ import TopicLayout from "./layouts/TopicLayout";
 import MainUserPage from "./pages/MainUserPage";
 import SubTopicUserPage from "./pages/SubTopicUserPage";
 import CreateTopicPage from "./pages/CreateTopicPage";
+import ContentDetailPage from "./pages/ContentsDetailPage";
+import TestPage from "./pages/TestPage";
+import FlashcardsPage from "./pages/FlashcardsPage";
+import { SidebarProvider } from "./context/SidebarContext";
 import { Testcomponent } from "./components/Testcomponent";
 
 export default function Home() {
   return (
-    <Router>
-      <Routes>
-        {/* Layout con solo Header */}
-        <Route element={<HeaderLayout />}>
-          <Route path="login" element={<LoginPage />} />
-          <Route path="register" element={<CreateAccountPage />} />
-          <Route path="create-topic" element={<CreateTopicPage />} />
-        </Route>
+    <SidebarProvider>
+      <Router>
+        <Routes>
+          {/* Layout con solo Header */}
+          <Route element={<HeaderLayout />}>
+            <Route path="login" element={<LoginPage />} />
+            <Route path="register" element={<CreateAccountPage />} />
+            <Route path="create-topic" element={<CreateTopicPage />} />
+            <Route
+              path="content-detail"
+              element={<ContentDetailPage />}
+            />
+            <Route path="go-test" element={<TestPage />} />
+            <Route path="study" element={<FlashcardsPage />} />
+          </Route>
 
-        {/* Layout con Sidebar + Header */}
-        <Route element={<TopicLayout />}>
-          <Route path="main" element={<MainUserPage />} />
-        </Route>
+          {/* Layout con Sidebar + Header */}
+          <Route element={<TopicLayout />}>
+            <Route path="main" element={<MainUserPage />} />
+          </Route>
 
-        <Route element={<MainLayout />}>
-          <Route path="subMain/:topicId" element={<SubTopicUserPage />} />
-        </Route>
+          <Route element={<MainLayout />}>
+            <Route path="subMain/:topicId" element={<SubTopicUserPage />} />
+          </Route>
 
-        {/* Redirecciones */}
-        <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="*" element={<Navigate to="/login" />} />
-      </Routes>
-    </Router>
+          {/* Redirecciones */}
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="*" element={<Navigate to="/login" />} />
+        </Routes>
+      </Router>
+    </SidebarProvider>
   );
 }

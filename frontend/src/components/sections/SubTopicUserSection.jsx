@@ -1,8 +1,8 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { useState } from "react";
-import { CardSubTopicComponent } from "../cards/CardSubTopicComponent";
 import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { CardSubTopicComponent } from "../cards/CardSubTopicComponent";
 
 export default function SubTopicUserSection() {
   const { user } = useAuth();
@@ -47,12 +47,9 @@ export default function SubTopicUserSection() {
       {topicData?.subtopics?.map((subtopic) => (
         <div key={subtopic.subtopic_code} className="flex items-center">
           <CardSubTopicComponent
+            subtopic={subtopic}
             title={subtopic.subtopic_title}
             description={subtopic.description}
-            onStudyClick={() => console.log("Ir a estudio")}
-            onListClick={() => console.log("Ver lista")}
-            onGoClick={() => console.log("Entrar al tema")}
-            href="#"
           />
         </div>
       ))}

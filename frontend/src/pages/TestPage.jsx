@@ -1,10 +1,10 @@
+import { TestSection } from "../components/sections/TestSection";
+import CheckAuth from "../components/CheckAuth";
 
-import { Testcomponent } from "../components/Testcomponent";
-
-function TestPage() {
-    return (
-        <div>
-            <Testcomponent />
-        </div>
-    );
+export default function TestPage() {
+  return (
+    <CheckAuth requireAuth={true}>
+      <TestSection />
+    </CheckAuth>
+  );
 }

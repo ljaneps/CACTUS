@@ -1,4 +1,3 @@
-import homeIcon from "../assets/icons/icon_home_primary.svg";
 import perfil1 from "../assets/pictures/perfil1.png";
 import BoxAltoIcon from "../assets/icons/icon_box_alto.svg";
 import BoxBajoIcon from "../assets/icons/icon_box_bajo.svg";
@@ -6,14 +5,10 @@ import BoxMedioIcon from "../assets/icons/icon_box_medio.svg";
 import FavIcon from "../assets/icons/icon_fav_primary.svg";
 import GoalIcon from "../assets/icons/icon_goal_primary.svg";
 import TimelineIcon from "../assets/icons/icon_timeline_primary.svg";
+import { useSidebar } from "../context/SidebarContext";
+import { useAuth } from "../context/AuthContext";
 
 const navigation = [{ name: "Favoritos", icon: FavIcon, current: false }];
-
-const progreso = [
-  { title: "Tarea 1", icon: BoxBajoIcon, porcentaje: 10, color: "bajo" },
-  { title: "Tarea 2", icon: BoxMedioIcon, porcentaje: 30, color: "medio" },
-  { title: "Tarea 3", icon: BoxAltoIcon, porcentaje: 60, color: "alto" },
-];
 
 const getColorClass = (c) =>
   c === "bajo"
@@ -27,6 +22,23 @@ function classNames(...classes) {
 }
 
 export default function SidebarComponent() {
+  const { user, selectedTopic } = useSidebar();
+  
+  console.log("TOPIC SELECCIONADO:::" + selectedTopic);
+  console.log("USER SIDEBAR:::" + selectedTopic?.username);
+  console.log("Date inicio:"+ selectedTopic?.date_ini);
+  console.log("Date fin:" +selectedTopic?.date_goal);
+  console.log("Progreso bajo:"+ selectedTopic?.low_percent);
+  console.log("Progreso medio:"+ selectedTopic?.intermediate_percent);
+  console.log("Progreso alto:"+ selectedTopic?.high_percent);
+
+    const progreso = [
+      { title: "Tarea 1", icon: BoxBajoIcon, porcentaje: selectedTopic?.low_percent, color: "bajo" },
+      { title: "Tarea 2", icon: BoxMedioIcon, porcentaje: selectedTopic?.intermediate_percent, color: "medio" },
+      { title: "Tarea 3", icon: BoxAltoIcon, porcentaje: selectedTopic?.high_percent, color: "alto" },
+    ];
+
+
   return (
     <aside className="w-80 flex flex-col bg-white border-r">
       {/* Logo */}
@@ -41,9 +53,12 @@ export default function SidebarComponent() {
       <div className="border-t px-2 py-6 flex items-center justify-center space-x-3">
         <div>
           <p className="text-sm font-medium text-gray-700">
-            Bienveid@ Tom Cook
+            Bienveid@ {user?.username}
           </p>
         </div>
+        {selectedTopic && (
+          <p className="text-xs text-gray-500">{selectedTopic.name}</p>
+        )}
       </div>
 
       {/* Navigation */}
@@ -81,13 +96,13 @@ export default function SidebarComponent() {
               className="mr-3 h-5 w-5 flex-shrink-0"
             />
             <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Obetivo
+              Objetivo
             </h3>
           </a>
 
           <div className="mt-1 space-y-1" role="group">
             <span className="ml-14 text-primary-light font-medium">
-              2025/10/09 - 2025/10/30
+              {selectedTopic?.date_ini} - {selectedTopic?.date_goal}
             </span>
           </div>
         </div>

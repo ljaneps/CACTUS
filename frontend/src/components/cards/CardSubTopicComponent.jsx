@@ -4,15 +4,28 @@ import ListOnIcon from "../../assets/icons/icon_list_primary.svg";
 import ListOffIcon from "../../assets/icons/icon_list_secondary.svg";
 import GoOnIcon from "../../assets/icons/icon_go_primary.svg";
 import GoOffIcon from "../../assets/icons/icon_go_secondary.svg";
+import { useNavigate } from "react-router-dom";
 
 export function CardSubTopicComponent({
+  subtopic,
   title,
   description,
-  onStudyClick,
-  onListClick,
-  onGoClick,
   href,
 }) {
+  const navigate = useNavigate();
+
+    const handleStudyClick = () => {
+      navigate("/study", { state: { subtopic } });
+    };
+
+    const handleListClick = () => {
+      navigate("/content-detail", { state: { subtopic } });
+    };
+
+    const handleGoClick = () => {
+      navigate("/go-test", { state: { subtopic } });
+    };
+
   return (
     <div className="w-96 h-72 p-6 bg-white border border-gray-300 rounded-lg shadow-sm dark:bg-white flex flex-col justify-between">
       {/* --- CONTENIDO --- */}
@@ -39,7 +52,7 @@ export function CardSubTopicComponent({
         {/* Botón 1 - Study */}
         <button
           className="group transition"
-          onClick={onStudyClick}
+          onClick={handleStudyClick}
           title="Estudiar">
           <img
             src={StudyOnIcon}
@@ -56,7 +69,7 @@ export function CardSubTopicComponent({
         {/* Botón 2 - List */}
         <button
           className="group transition"
-          onClick={onListClick}
+          onClick={handleListClick}
           title="Ver lista">
           <img
             src={ListOnIcon}
@@ -71,7 +84,7 @@ export function CardSubTopicComponent({
         </button>
 
         {/* Botón 3 - Go */}
-        <button className="group transition" onClick={onGoClick} title="Ir">
+        <button className="group transition" onClick={handleGoClick} title="Ir">
           <img src={GoOnIcon} alt="Go" className="w-8 h-8 group-hover:hidden" />
           <img
             src={GoOffIcon}

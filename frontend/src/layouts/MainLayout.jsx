@@ -1,11 +1,21 @@
-import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import { useSidebar } from "../context/SidebarContext";
+import { useAuth } from "../context/AuthContext";
 import HeaderComponent from "../components/HeaderComponent";
 import SidebarComponent from "../components/SidebarComponent";
 import { Menu, X } from "lucide-react"; // iconos modernos
 
 export default function MainLayout() {
+  const { user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+  const topicFromNav = location.state?.topic; // <- aquí se recibe el topic desde navigate
+  const { selectedTopic, setSelectedTopic } = useSidebar();
+
+  useEffect(() => {
+    if (topicFromNav) setSelectedTopic(topicFromNav);
+  }, [topicFromNav]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -16,7 +26,7 @@ export default function MainLayout() {
       <div className="flex flex-1 relative">
         {/* SIDEBAR MODO ESCRITORIO */}
         <aside className="hidden lg:flex w-80 flex-col border-r bg-white">
-          <SidebarComponent />
+          <SidebarComponent user={user} selectedTopic={selectedTopic} />
         </aside>
 
         {/* SIDEBAR MODO MÓVIL */}
@@ -36,7 +46,7 @@ export default function MainLayout() {
                   <X className="h-6 w-6" />
                 </button>
               </div>
-              <SidebarComponent />
+              <SidebarComponent user={user} selectedTopic={selectedTopic} />
             </div>
           </>
         )}
