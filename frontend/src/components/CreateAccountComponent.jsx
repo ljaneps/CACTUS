@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ButtonComponent } from "./buttons/ButtonComponent";
+import { ArrowRight } from "lucide-react";
 
 function CreateAccountComponent() {
   const navigate = useNavigate();
@@ -7,9 +9,13 @@ function CreateAccountComponent() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
+    setLoading(true);
 
     try {
       const response = await fetch("http://127.0.0.1:8000/users/add", {
@@ -24,20 +30,17 @@ function CreateAccountComponent() {
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
       setMessage("❌ No se pudo crear la cuenta. Revisa los datos.", err);
+      setError(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      style={{
-        maxWidth: 400,
-        margin: "20px auto",
-        textAlign: "center",
-        display: "flex",
-        flexDirection: "column",
-      }}>
-      <h2>Crear cuenta</h2>
+      className="max-w-xl mx-auto mt-16 flex flex-col items-center bg-white p-20 rounded-2xl shadow-md border border-gray-100">
+      <h2 className="text-2xl font-bold text-emerald-800 mb-6">Crear cuenta</h2>
 
       <input
         type="email"
@@ -45,7 +48,7 @@ function CreateAccountComponent() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
-        style={{ margin: "10px 0" }}
+        className="w-full mb-4 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-400 focus:outline-none"
       />
 
       <input
@@ -54,7 +57,7 @@ function CreateAccountComponent() {
         value={username}
         onChange={(e) => setUsername(e.target.value)}
         required
-        style={{ margin: "10px 0" }}
+        className="w-full mb-4 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-400 focus:outline-none"
       />
 
       <input
@@ -63,28 +66,26 @@ function CreateAccountComponent() {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
-        style={{ margin: "10px 0" }}
+        className="w-full mb-6 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-400 focus:outline-none"
       />
 
-      <button type="submit" style={{ marginTop: "10px" }}>
-        Create Account
-      </button>
+      <ButtonComponent
+        text="Crear cuenta"
+        icon={ArrowRight}
+        disabled={loading}
+        fullWidth
+        primary>
+        {loading ? "Loading..." : "Crear cuenta"}
+      </ButtonComponent>
 
       <button
         type="button"
         onClick={() => navigate("/login")}
-        style={{
-          marginTop: "15px",
-          background: "none",
-          border: "none",
-          color: "#007bff",
-          textDecoration: "underline",
-          cursor: "pointer",
-        }}>
-        ← Sign in
+        className="mt-4 text-emerald-700 text-sm hover:underline">
+        ← Iniciar sesión
       </button>
 
-      {message && <p>{message}</p>}
+      {message && <p className="mt-4 text-sm text-gray-600">{message}</p>}
     </form>
   );
 }

@@ -1,12 +1,8 @@
-import StudyOnIcon from "../../assets/icons/icon_study_primary.svg";
-import StudyOffIcon from "../../assets/icons/icon_study_secondary.svg";
-import ListOnIcon from "../../assets/icons/icon_list_primary.svg";
-import ListOffIcon from "../../assets/icons/icon_list_secondary.svg";
-import GoOnIcon from "../../assets/icons/icon_go_primary.svg";
-import GoOffIcon from "../../assets/icons/icon_go_secondary.svg";
 import { useNavigate } from "react-router-dom";
+import { BookOpenText, Library, BookCheck } from "lucide-react";
 
 export function CardSubTopicComponent({
+  header,
   subtopic,
   title,
   description,
@@ -14,17 +10,17 @@ export function CardSubTopicComponent({
 }) {
   const navigate = useNavigate();
 
-    const handleStudyClick = () => {
-      navigate("/study", { state: { subtopic } });
-    };
+  const handleStudyClick = () => {
+    navigate("/study", { state: { subtopic, header } });
+  };
 
-    const handleListClick = () => {
-      navigate("/content-detail", { state: { subtopic } });
-    };
+  const handleListClick = () => {
+    navigate("/content-detail", { state: { subtopic, header } });
+  };
 
-    const handleGoClick = () => {
-      navigate("/go-test", { state: { subtopic } });
-    };
+  const handleGoClick = () => {
+    navigate("/go-test", { state: { subtopic, header } });
+  };
 
   return (
     <div className="w-96 h-72 p-6 bg-white border border-gray-300 rounded-lg shadow-sm dark:bg-white flex flex-col justify-between">
@@ -51,46 +47,26 @@ export function CardSubTopicComponent({
       <div className="flex justify-around mt-2 border-t border-gray-200 pt-3">
         {/* Botón 1 - Study */}
         <button
-          className="group transition"
           onClick={handleStudyClick}
-          title="Estudiar">
-          <img
-            src={StudyOnIcon}
-            alt="Study"
-            className="w-8 h-8 group-hover:hidden"
-          />
-          <img
-            src={StudyOffIcon}
-            alt="Study hover"
-            className="w-8 h-8 hidden group-hover:block"
-          />
+          className="text-emerald-900 hover:text-primary-medium"
+          title="Guardar nueva flashcard">
+          <BookOpenText size={24} />
         </button>
 
         {/* Botón 2 - List */}
         <button
-          className="group transition"
           onClick={handleListClick}
-          title="Ver lista">
-          <img
-            src={ListOnIcon}
-            alt="List"
-            className="w-8 h-8 group-hover:hidden"
-          />
-          <img
-            src={ListOffIcon}
-            alt="List hover"
-            className="w-8 h-8 hidden group-hover:block"
-          />
+          className="text-emerald-900 hover:text-primary-medium"
+          title="Guardar nueva flashcard">
+          <Library size={24} />
         </button>
 
         {/* Botón 3 - Go */}
-        <button className="group transition" onClick={handleGoClick} title="Ir">
-          <img src={GoOnIcon} alt="Go" className="w-8 h-8 group-hover:hidden" />
-          <img
-            src={GoOffIcon}
-            alt="Go hover"
-            className="w-8 h-8 hidden group-hover:block"
-          />
+        <button
+          onClick={handleGoClick}
+          className="text-emerald-900 hover:text-primary-medium"
+          title="Guardar nueva flashcard">
+          <BookCheck size={24} />
         </button>
       </div>
     </div>

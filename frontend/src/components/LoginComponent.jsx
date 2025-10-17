@@ -42,78 +42,89 @@ export default function LoginComponent() {
     }
   };
 
-  return (
-    <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-primary">
-          Sign in to your account
-        </h2>
+return (
+  <div className="min-h-screen flex justify-center items-start pt-16 bg-gradient-to-br from-emerald-50 to-emerald-50 px-6">
+    <form
+      onSubmit={handleSubmit}
+      className="w-full max-w-md bg-white p-12 m-6 rounded-2xl shadow-lg border-2 border-gray-200">
+      {/* --- Título --- */}
+      <h2 className="text-3xl font-bold text-emerald-800 mb-2 text-center">
+        Bienvenido de nuevo
+      </h2>
+      <p className="text-gray-500 text-sm text-center mb-8">
+        Inicia sesión para continuar
+      </p>
+
+      {/* --- Email --- */}
+      <div className="mb-6">
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-gray-700 mb-1">
+          Correo o nombre de usuario
+        </label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          autoComplete="email"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg 
+                     focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 
+                     focus:outline-none transition duration-150"
+        />
       </div>
 
-      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-900">
-              Email or username
-            </label>
-            <div className="mt-2">
-              <input
-                id="email"
-                type="email"
-                name="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                className="block w-full border-2 border-gray-300 rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-primary sm:text-sm"
-              />
-            </div>
-          </div>
+      {/* --- Password --- */}
+      <div className="mb-8">
+        <label
+          htmlFor="password"
+          className="block text-sm font-medium text-gray-700 mb-1">
+          Contraseña
+        </label>
+        <input
+          id="password"
+          type="password"
+          name="password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg 
+                     focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 
+                     focus:outline-none transition duration-150"
+        />
+      </div>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-900">
-              Password
-            </label>
-            <div className="mt-2">
-              <input
-                id="password"
-                type="password"
-                name="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-                className="block w-full border-2 border-gray-300 rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-primary sm:text-sm"
-              />
-            </div>
-          </div>
+      {/* --- Botón principal --- */}
+      <ButtonComponent
+        text={loading ? "Cargando..." : "Iniciar sesión"}
+        icon={ArrowRight}
+        disabled={loading}
+        fullWidth
+        primary
+      />
 
-          <div>
-            <ButtonComponent
-              text="Sign in"
-              icon={ArrowRight}
-              disabled={loading}
-              fullWidth
-              primary>
-              {loading ? "Loading..." : "Sign in"}
-            </ButtonComponent>
-          </div>
-        </form>
-
+      {/* --- Enlace a registro --- */}
+      <p className="mt-6 text-center text-sm">
+        ¿No tienes cuenta?{" "}
         <button
           type="button"
           onClick={() => navigate("/register")}
-          className="mt-6 flex w-full justify-center hover:text-primary-medium px-3 py-1.5 text-sm font-semibold text-primary">
-          ← Create account
+          className="text-emerald-700 font-medium hover:underline">
+          Crear cuenta
         </button>
+      </p>
 
-        {message && <p className="text-green-600">{message}</p>}
-        {error && <p className="text-red-600">{error}</p>}
-      </div>
-    </div>
-  );
+      {/* --- Mensajes --- */}
+      {message && (
+        <p className="mt-4 text-center text-green-600 text-sm">{message}</p>
+      )}
+      {error && (
+        <p className="mt-4 text-center text-red-600 text-sm">{error}</p>
+      )}
+    </form>
+  </div>
+);
 }

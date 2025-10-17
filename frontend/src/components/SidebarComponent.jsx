@@ -2,13 +2,11 @@ import perfil1 from "../assets/pictures/perfil1.png";
 import BoxAltoIcon from "../assets/icons/icon_box_alto.svg";
 import BoxBajoIcon from "../assets/icons/icon_box_bajo.svg";
 import BoxMedioIcon from "../assets/icons/icon_box_medio.svg";
-import FavIcon from "../assets/icons/icon_fav_primary.svg";
-import GoalIcon from "../assets/icons/icon_goal_primary.svg";
-import TimelineIcon from "../assets/icons/icon_timeline_primary.svg";
 import { useSidebar } from "../context/SidebarContext";
 import { useAuth } from "../context/AuthContext";
+import { FlagTriangleLeft, CalendarClock, Star } from "lucide-react";
 
-const navigation = [{ name: "Favoritos", icon: FavIcon, current: false }];
+const navigation = [{ name: "Favoritos", icon: Star, current: false }];
 
 const getColorClass = (c) =>
   c === "bajo"
@@ -23,21 +21,27 @@ function classNames(...classes) {
 
 export default function SidebarComponent() {
   const { user, selectedTopic } = useSidebar();
-  
-  console.log("TOPIC SELECCIONADO:::" + selectedTopic);
-  console.log("USER SIDEBAR:::" + selectedTopic?.username);
-  console.log("Date inicio:"+ selectedTopic?.date_ini);
-  console.log("Date fin:" +selectedTopic?.date_goal);
-  console.log("Progreso bajo:"+ selectedTopic?.low_percent);
-  console.log("Progreso medio:"+ selectedTopic?.intermediate_percent);
-  console.log("Progreso alto:"+ selectedTopic?.high_percent);
 
-    const progreso = [
-      { title: "Tarea 1", icon: BoxBajoIcon, porcentaje: selectedTopic?.low_percent, color: "bajo" },
-      { title: "Tarea 2", icon: BoxMedioIcon, porcentaje: selectedTopic?.intermediate_percent, color: "medio" },
-      { title: "Tarea 3", icon: BoxAltoIcon, porcentaje: selectedTopic?.high_percent, color: "alto" },
-    ];
-
+  const progreso = [
+    {
+      title: "Tarea 1",
+      icon: BoxBajoIcon,
+      porcentaje: selectedTopic?.low_percent,
+      color: "bajo",
+    },
+    {
+      title: "Tarea 2",
+      icon: BoxMedioIcon,
+      porcentaje: selectedTopic?.intermediate_percent,
+      color: "medio",
+    },
+    {
+      title: "Tarea 3",
+      icon: BoxAltoIcon,
+      porcentaje: selectedTopic?.high_percent,
+      color: "alto",
+    },
+  ];
 
   return (
     <aside className="w-80 flex flex-col bg-white border-r">
@@ -73,16 +77,7 @@ export default function SidebarComponent() {
                 : "text-primary hover:text-primary-medium hover:bg-primary/5",
               "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors duration-200"
             )}>
-            <img
-              src={item.icon}
-              alt=""
-              className={classNames(
-                item.current
-                  ? "text-primary"
-                  : "text-primary group-hover:text-primary-medium",
-                "mr-3 h-6 w-6 flex-shrink-0 transition-colors duration-200"
-              )}
-            />
+            <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
             {item.name}
           </a>
         ))}
@@ -90,11 +85,7 @@ export default function SidebarComponent() {
         {/* Objetivo */}
         <div className="mt-6">
           <a className="group flex items-center px-2 py-4">
-            <img
-              src={GoalIcon}
-              alt="Avatar"
-              className="mr-3 h-5 w-5 flex-shrink-0"
-            />
+            <CalendarClock className="mr-3 h-5 w-5 flex-shrink-0 text-primary" />
             <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
               Objetivo
             </h3>
@@ -110,11 +101,7 @@ export default function SidebarComponent() {
         {/* Progreso */}
         <div className="mt-6">
           <a className="group flex items-center px-2 py-4">
-            <img
-              src={TimelineIcon}
-              alt="Avatar"
-              className="mr-3 h-5 w-5 flex-shrink-0"
-            />
+            <FlagTriangleLeft className="mr-3 h-5 w-5 flex-shrink-0 text-primary" />
             <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
               Progreso
             </h3>

@@ -1,10 +1,15 @@
 import perfil1 from "../assets/pictures/perfil1.png";
-import AddIcon from "../assets/icons/icon_add_primary.svg";
+import { Plus } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { NavLink } from "react-router-dom";
 
 const navigation = [
-  { name: "Crear nuevo tema", icon: AddIcon, current: false, href: "/create-topic" },
+  {
+    name: "Crear nuevo tema",
+    icon: Plus,
+    current: false,
+    href: "/create-topic",
+  },
 ];
 
 function classNames(...classes) {
@@ -44,16 +49,7 @@ export default function SidebarInitComponent() {
                 : "text-primary hover:text-primary-medium hover:bg-primary/5",
               "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors duration-200"
             )}>
-            <img
-              src={item.icon}
-              alt=""
-              className={classNames(
-                item.current
-                  ? "text-primary"
-                  : "text-primary group-hover:text-primary-medium",
-                "mr-3 h-6 w-6 flex-shrink-0 transition-colors duration-200"
-              )}
-            />
+            <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
             {item.name}
           </NavLink>
         ))}

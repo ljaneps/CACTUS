@@ -42,17 +42,28 @@ export default function SubTopicUserSection() {
   if (loading) return <p>Cargando subtemas...</p>;
   if (!topicData) return <p>No se encontraron datos del tema.</p>;
 
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6 items-center">
+return (
+  <div className="min-h-screen">
+    {/* Header */}
+    <header className="flex justify-between items-center px-6 py-4">
+      <h1 className="text-2xl font-bold text-emerald-900 uppercase">
+        {topic.topic_title}
+      </h1>
+    </header>
+
+    {/* Contenido principal */}
+    <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
       {topicData?.subtopics?.map((subtopic) => (
         <div key={subtopic.subtopic_code} className="flex items-center">
           <CardSubTopicComponent
+            header={topic.topic_title}
             subtopic={subtopic}
             title={subtopic.subtopic_title}
             description={subtopic.description}
           />
         </div>
       ))}
-    </div>
-  );
+    </main>
+  </div>
+);
 }

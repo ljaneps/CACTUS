@@ -1,6 +1,5 @@
 import { useState } from "react";
-import FavOffIcon from "../../assets/icons/icon_fav_primary.svg";
-import FavOnIcon from "../../assets/icons/icon_fav_secondary.svg";
+import { Star } from "lucide-react";
 
 export function FavoriteButtonComponent({ apiUrl, itemId }) {
   const [selected, setSelected] = useState(false);
@@ -33,21 +32,9 @@ export function FavoriteButtonComponent({ apiUrl, itemId }) {
   return (
     <button
       onClick={handleClick}
-      disabled={loading}
-      className="absolute top-3 right-3 group transition">
-      {/* Icono actual */}
-      <img
-        src={selected ? FavOnIcon : FavOffIcon}
-        alt="Favorito"
-        className="w-6 h-6 group-hover:hidden"
-      />
-
-      {/* Icono hover */}
-      <img
-        src={selected ? FavOffIcon : FavOnIcon}
-        alt="Favorito hover"
-        className="w-6 h-6 hidden group-hover:block"
-      />
+      className="text-emerald-900 hover:text-primary-medium"
+      title="Guardar nueva flashcard">
+      <Star size={24} />
     </button>
   );
 }

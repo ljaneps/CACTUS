@@ -1,10 +1,7 @@
-import { ButtonComponent } from "../buttons/ButtonComponent";
-import NextOnIcon from "../../assets/icons/icon_next_primary.svg";
-import NextOffIcon from "../../assets/icons/icon_next_seconday.svg";
-import PrevOnIcon from "../../assets/icons/icon_prev_primary.svg";
-import PrevOffIcon from "../../assets/icons/icon_prev_secondary.svg";
 import { FavoriteButtonComponent } from "../buttons/FavoriteButtonComponent";
+import { ButtonComponent } from "../buttons/ButtonComponent";
 import { useState } from "react";
+import { ArrowBigRight, ArrowBigLeft } from "lucide-react";
 
 export function CardComponent({
   title,
@@ -50,17 +47,11 @@ export function CardComponent({
 
       {/* --- CONTROLES INFERIORES CON BOTÓN MAIN --- */}
       <div className="flex justify-between items-center mt-3 px-4">
-        <button className="group transition" onClick={onPrev}>
-          <img
-            src={PrevOnIcon}
-            alt="Ir anterior"
-            className="w-8 h-8 group-hover:hidden"
-          />
-          <img
-            src={PrevOffIcon}
-            alt="Ir anterior"
-            className="w-8 h-8 hidden group-hover:block"
-          />
+        <button
+          onClick={onPrev}
+          className="text-emerald-900 hover:text-primary-medium"
+          title="Guardar nueva flashcard">
+          <ArrowBigLeft size={24} />
         </button>
 
         {/* Botón principal alineado al centro */}
@@ -71,17 +62,11 @@ export function CardComponent({
           variant={isFlipped ? "secondary" : "primary"}
         />
 
-        <button className="group transition" onClick={onNext}>
-          <img
-            src={NextOnIcon}
-            alt="Ir siguiente"
-            className="w-8 h-8 group-hover:hidden"
-          />
-          <img
-            src={NextOffIcon}
-            alt="Ir siguiente"
-            className="w-8 h-8 hidden group-hover:block"
-          />
+        <button
+          onClick={onNext}
+          className="text-emerald-900 hover:text-primary-medium"
+          title="Guardar nueva flashcard">
+          <ArrowBigRight size={24} />
         </button>
       </div>
     </div>

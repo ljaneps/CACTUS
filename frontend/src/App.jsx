@@ -4,6 +4,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import { SidebarProvider } from "./context/SidebarContext";
 import LoginPage from "./pages/LoginPage";
 import CreateAccountPage from "./pages/CreateAccountPage";
 import HeaderLayout from "./layouts/HeaderLayout";
@@ -15,8 +16,6 @@ import CreateTopicPage from "./pages/CreateTopicPage";
 import ContentDetailPage from "./pages/ContentsDetailPage";
 import TestPage from "./pages/TestPage";
 import FlashcardsPage from "./pages/FlashcardsPage";
-import { SidebarProvider } from "./context/SidebarContext";
-import { Testcomponent } from "./components/Testcomponent";
 
 export default function Home() {
   return (
@@ -28,10 +27,7 @@ export default function Home() {
             <Route path="login" element={<LoginPage />} />
             <Route path="register" element={<CreateAccountPage />} />
             <Route path="create-topic" element={<CreateTopicPage />} />
-            <Route
-              path="content-detail"
-              element={<ContentDetailPage />}
-            />
+            <Route path="content-detail" element={<ContentDetailPage />} />
             <Route path="go-test" element={<TestPage />} />
             <Route path="study" element={<FlashcardsPage />} />
           </Route>
