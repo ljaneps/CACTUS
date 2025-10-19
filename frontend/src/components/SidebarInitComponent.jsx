@@ -1,22 +1,13 @@
 import perfil1 from "../assets/pictures/perfil1.png";
-import { Plus } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { NavLink } from "react-router-dom";
-
-const navigation = [
-  {
-    name: "Crear nuevo tema",
-    icon: Plus,
-    current: false,
-    href: "/create-topic",
-  },
-];
+import LogoutButton from "./LogoutComponent";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function SidebarInitComponent() {
+export default function SidebarInitComponent({ navigation = [] }) {
   const { user } = useAuth();
   return (
     <aside className="w-80 flex flex-col bg-white border-r">
@@ -29,12 +20,11 @@ export default function SidebarInitComponent() {
         />
       </div>
       {/* User profile */}
-      <div className="border-t p-4 flex items-center justify-center space-x-3">
-        <div>
-          <p className="text-sm font-medium text-gray-700">
-            Bienveid@ {user?.username}
-          </p>
-        </div>
+      <div className="border-t px-2 py-6 flex flex-col items-center text-center space-y-2">
+        <p className="text-sm font-medium text-gray-700">
+          Bienveid@ {user?.username}
+        </p>
+        <LogoutButton />
       </div>
 
       {/* Navigation */}

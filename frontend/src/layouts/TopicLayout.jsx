@@ -1,22 +1,49 @@
 import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
+import { X, Plus, BookOpen, GraduationCap, Home, Star, ArrowDown } from "lucide-react";
 import HeaderComponent from "../components/HeaderComponent";
 import SidebarInitComponent from "../components/SidebarInitComponent";
-import { Menu, X } from "lucide-react"; // iconos modernos
 
 export default function TopicLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+
+  const path = location.pathname;
+
+  let navigation = [];
+
+  if (path.includes("/main")) {
+    navigation = [
+      { name: "Crear nuevo tema", icon: Plus, href: "/create-topic" },
+    ];
+  } else if (path.includes("/study")) {
+    navigation = [
+      { name: "Volver al inicio", icon: Home, href: "/main" },
+      { name: "Favoritos ", icon: Star, href: "/main" },
+      { name: "Ir a test", icon: GraduationCap, href: "/go-test" },
+    ];
+  } else if (path.includes("/go-test")) {
+    navigation = [
+      { name: "Volver al inicio", icon: Home, href: "/main" },
+      { name: "Estudiar", icon: BookOpen, href: "/study" },
+    ];
+  } else {
+    navigation = [
+      { name: "Inicio", icon: Home, href: "/main" },
+      { name: "Crear nuevo tema", icon: Plus, href: "/create-topic" },
+    ];
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Header recibe el callback */}
+      {/* HEADER */}
       <HeaderComponent onOpenSidebar={() => setSidebarOpen(true)} />
 
       {/* CONTENEDOR PRINCIPAL */}
       <div className="flex flex-1 relative">
         {/* SIDEBAR MODO ESCRITORIO */}
         <aside className="hidden lg:flex w-80 flex-col border-r bg-white">
-          <SidebarInitComponent />
+          <SidebarInitComponent navigation={navigation} />
         </aside>
 
         {/* SIDEBAR MODO MÓVIL */}
@@ -36,13 +63,13 @@ export default function TopicLayout() {
                   <X className="h-6 w-6" />
                 </button>
               </div>
-              <SidebarInitComponent />
+              <SidebarInitComponent navigation={navigation} />
             </div>
           </>
         )}
 
         {/* CONTENIDO PRINCIPAL */}
-        <main className="flex-1 bg-gray-50 p-6 overflow-y-auto">
+        <main className="flex-1 bg-gray-50 overflow-y-auto">
           <Outlet />
         </main>
       </div>

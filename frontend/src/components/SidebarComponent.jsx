@@ -3,7 +3,7 @@ import BoxAltoIcon from "../assets/icons/icon_box_alto.svg";
 import BoxBajoIcon from "../assets/icons/icon_box_bajo.svg";
 import BoxMedioIcon from "../assets/icons/icon_box_medio.svg";
 import { useSidebar } from "../context/SidebarContext";
-import { useAuth } from "../context/AuthContext";
+import LogoutButton from "./LogoutComponent";
 import { FlagTriangleLeft, CalendarClock, Star } from "lucide-react";
 
 const navigation = [{ name: "Favoritos", icon: Star, current: false }];
@@ -54,15 +54,17 @@ export default function SidebarComponent() {
         />
       </div>
       {/* User profile */}
-      <div className="border-t px-2 py-6 flex items-center justify-center space-x-3">
-        <div>
-          <p className="text-sm font-medium text-gray-700">
-            Bienveid@ {user?.username}
-          </p>
-        </div>
+      <div className="border-t px-2 py-6 flex flex-col items-center text-center space-y-2">
+        <p className="text-sm font-medium text-gray-700">
+          Bienvenid@ {user?.username}
+        </p>
+
         {selectedTopic && (
           <p className="text-xs text-gray-500">{selectedTopic.name}</p>
         )}
+
+        <LogoutButton />
+        
       </div>
 
       {/* Navigation */}
@@ -106,21 +108,23 @@ export default function SidebarComponent() {
               Progreso
             </h3>
           </a>
-          <div className="mt-1 space-y-1" role="group">
+
+          <div className="mt-1 space-y-1 px-3 py-2" role="group">
             {progreso.map((item) => (
-              <a
-                key={item.title}
-                className="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 hover:text-indigo-600">
+              <div
+                key={item.id || item.icon} // Usa un id único si lo tienes
+                className="flex items-center space-x-3">
                 <img
                   src={item.icon}
-                  alt=""
+                  alt={item.label || ""}
                   className={classNames(
                     item.current
                       ? "text-indigo-600"
                       : "text-gray-400 group-hover:text-indigo-600",
-                    "mr-3 h-10 w-10 flex-shrink-0"
+                    "h-10 w-10 flex-shrink-0"
                   )}
                 />
+
                 <div className="flex-1">
                   <div className="flex justify-between">
                     <span className="text-xs text-gray-500">
@@ -135,7 +139,7 @@ export default function SidebarComponent() {
                       style={{ width: `${item.porcentaje}%` }}></div>
                   </div>
                 </div>
-              </a>
+              </div>
             ))}
           </div>
         </div>

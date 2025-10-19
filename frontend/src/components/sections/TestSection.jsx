@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { CardTestComponent } from "../cards/CardTestComponent";
+import SectionHeader from "./HeaderSection";
 
 export function TestSection() {
   const location = useLocation();
-  const { subtopic, header } = location.state || {};
+  const navigate = useNavigate();
+  const { subtopic, topic } = location.state || {};
   const flashcards = subtopic?.flashcards || [];
 
   // ✅ Aplanar todas las preguntas de las flashcards
@@ -37,16 +39,18 @@ export function TestSection() {
   };
 
   return (
-    <div className="min-h-screen bg-white p-16 flex flex-col">
+    <div className="min-h-screen bg-white">
       {/* ENCABEZADO */}
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-emerald-900 uppercase">
-          {header} &gt; {subtopic?.subtopic_title || "SUBTEMA"}
-        </h1>
+      <div>
+        <SectionHeader
+          topic={topic?.topic_title}
+          subtopic={subtopic?.subtopic_title}
+          onBack={() => navigate(`/subMain/${topic?.topic_code}`)}
+        />
       </div>
 
       {/* CONTENIDO PRINCIPAL */}
-      <div className="flex-1 flex flex-col items-center justify-start pt-16">
+      <div className="flex-1 flex flex-col items-center justify-start pt-0">
         {currentQuestion ? (
           <CardTestComponent
             key={currentQuestion.id || currentQuestion.question} // 🔑 CLAVE ÚNICA

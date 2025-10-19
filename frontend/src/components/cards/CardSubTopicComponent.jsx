@@ -2,24 +2,31 @@ import { useNavigate } from "react-router-dom";
 import { BookOpenText, Library, BookCheck } from "lucide-react";
 
 export function CardSubTopicComponent({
-  header,
+  topic,
   subtopic,
   title,
   description,
   href,
 }) {
   const navigate = useNavigate();
+  const header = topic.topic_title;
 
   const handleStudyClick = () => {
-    navigate("/study", { state: { subtopic, header } });
+    navigate(`/subMain/${topic.topic_code}/study`, {
+      state: { subtopic, topic },
+    });
   };
 
   const handleListClick = () => {
-    navigate("/content-detail", { state: { subtopic, header } });
+    navigate(`/subMain/${topic.topic_code}/content-detail`, {
+      state: { subtopic, topic },
+    });
   };
 
   const handleGoClick = () => {
-    navigate("/go-test", { state: { subtopic, header } });
+    navigate(`/subMain/${topic.topic_code}/go-test`, {
+      state: { subtopic, topic },
+    });
   };
 
   return (
@@ -45,27 +52,27 @@ export function CardSubTopicComponent({
 
       {/* --- BOTONES INFERIORES --- */}
       <div className="flex justify-around mt-2 border-t border-gray-200 pt-3">
-        {/* Botón 1 - Study */}
+        {/* Botón 1 - Estudiar */}
         <button
           onClick={handleStudyClick}
           className="text-emerald-900 hover:text-primary-medium"
-          title="Guardar nueva flashcard">
+          title="Estudiar">
           <BookOpenText size={24} />
         </button>
 
-        {/* Botón 2 - List */}
+        {/* Botón 2 - List detail Flashcards */}
         <button
           onClick={handleListClick}
           className="text-emerald-900 hover:text-primary-medium"
-          title="Guardar nueva flashcard">
+          title="Flashcards detalle">
           <Library size={24} />
         </button>
 
-        {/* Botón 3 - Go */}
+        {/* Botón 3 - TEST */}
         <button
           onClick={handleGoClick}
           className="text-emerald-900 hover:text-primary-medium"
-          title="Guardar nueva flashcard">
+          title="Test">
           <BookCheck size={24} />
         </button>
       </div>

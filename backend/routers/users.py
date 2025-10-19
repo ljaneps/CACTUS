@@ -36,7 +36,7 @@ def get_db():
     finally:
         db.close()
 
-
+# CREAR usuario
 @router.post("/add", response_model=user_schema.UserResponse)
 def create_user(user: user_schema.UserCreate, db: Session = Depends(get_db)):
     new_user = models.User(
@@ -49,14 +49,14 @@ def create_user(user: user_schema.UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return new_user
 
-
+#Generar token
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-
+#LOGIN usuario
 @router.post("/login")
 def login_user(credentials: user_schema.UserLogin, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(
@@ -85,6 +85,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     return user
 
 
+#OBTENER usuario por email
 @router.get("/by-email/{email}", response_model=user_schema.UserResponse)
 def get_user_by_email(email: str, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email == email).first()
@@ -93,6 +94,7 @@ def get_user_by_email(email: str, db: Session = Depends(get_db)):
     return user
 
 
+#Eliminar usuario 
 @router.post("/delete")
 def delete_user(identifier: str, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(

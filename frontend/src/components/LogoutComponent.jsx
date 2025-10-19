@@ -1,16 +1,22 @@
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { ButtonComponent } from "./buttons/ButtonComponent";
+import { useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 
 export default function LogoutButton() {
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");
-    router.push("/"); // o redirige a /login si prefieres
+    navigate("/login"); // o "/" si prefieres
   };
 
-  return <ButtonComponent onClick={handleLogout}>Cerrar sesión</ButtonComponent>;
+  return (
+    <button
+      onClick={handleLogout}
+      className="mt-2 flex items-center text-xs text-gray-500 hover:text-red-600 transition-colors">
+      <LogOut className="mr-1 h-4 w-4" />
+      Cerrar sesión
+    </button>
+  );
 }

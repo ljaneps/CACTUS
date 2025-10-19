@@ -7,9 +7,9 @@ import SubTopicUserSection from "../components/sections/SubTopicUserSection";
 
 export default function SubTopicUserPage() {
   const { user } = useAuth();
-  const location = useLocation();
   const { setSelectedTopic } = useSidebar();
-  const topic = location.state?.topic; // ✅ aquí llega el topic desde navigate
+  const location = useLocation();
+  const topic = location.state?.topic;
 
   useEffect(() => {
     if (topic) {

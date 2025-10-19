@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Plus, Save } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Save } from "lucide-react";
 import { CardDetailComponent } from "../cards/CardDetailComponent";
+import SectionHeader from "./HeaderSection";
 
 export function ContentsDetailSection() {
   const location = useLocation();
-  const { subtopic, header } = location.state || {};
+  const navigate = useNavigate();
+  const { subtopic, topic } = location.state || {};
   const flashcards = subtopic?.flashcards || [];
 
   const [preguntas, setPreguntas] = useState([
@@ -48,65 +50,63 @@ export function ContentsDetailSection() {
   console.log("SUBTOPIC:", subtopic?.flashcards);
 
   return (
-    <div className="min-h-screen bg-white p-16">
-      {/* ENCABEZADO */}
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-emerald-900 uppercase">
-          {header} &gt; {subtopic?.subtopic_title || "SUBTEMA"}
-        </h1>
-        <button onClick={agregarPregunta} className="p-2 rounded-full">
-          <Plus
-            className="text-emerald-900 hover:text-primary-medium"
-            size={24}
-          />
-        </button>
+    <div className="min-h-screen bg-white">
+      <div>
+        {/* ENCABEZADO */}
+        <SectionHeader
+          topic={topic?.topic_title}
+          subtopic={subtopic?.subtopic_title}
+          onBack={() => navigate(`/subMain/${topic?.topic_code}`)}
+        />
       </div>
 
-      {/* FORMULARIO PARA NUEVA FLASHCARD */}
-      <div className="flex flex-col sm:flex-row gap-4 border rounded-lg p-4 shadow-sm mb-8">
-        <div className="flex-1 border rounded-md p-4 text-center text-gray-700 bg-gray-50">
-          <strong>Nueva pregunta</strong>
-          <textarea
-            value={nuevaPregunta}
-            onChange={(e) => setNuevaPregunta(e.target.value)}
-            placeholder="Escribe tu pregunta aquí."
-            className="w-full mt-2 border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
-          />
+      <div className="min-h-screen bg-white px-16">
+        {/* FORMULARIO PARA NUEVA FLASHCARD */}
+        <div className="flex flex-col sm:flex-row gap-4 border rounded-lg p-4 shadow-sm mb-8">
+          <div className="flex-1 border rounded-md p-4 text-center text-gray-700 bg-gray-50">
+            <strong>Nueva pregunta</strong>
+            <textarea
+              value={nuevaPregunta}
+              onChange={(e) => setNuevaPregunta(e.target.value)}
+              placeholder="Escribe tu pregunta aquí."
+              className="w-full mt-2 border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+            />
+          </div>
+
+          <div className="flex-1 border rounded-md p-4 bg-white text-gray-700">
+            <strong>Respuesta</strong>
+            <textarea
+              value={nuevaRespuesta}
+              onChange={(e) => setNuevaRespuesta(e.target.value)}
+              placeholder="Escribe aquí la respuesta."
+              className="w-full mt-2 border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+            />
+          </div>
+
+          <div className="flex sm:flex-col items-center justify-around sm:justify-center gap-3 sm:ml-2">
+            <button
+              onClick={agregarPregunta}
+              className="text-emerald-900 hover:text-primary-medium"
+              title="Guardar nueva flashcard">
+              <Save size={22} />
+            </button>
+          </div>
         </div>
 
-        <div className="flex-1 border rounded-md p-4 bg-white text-gray-700">
-          <strong>Respuesta</strong>
-          <textarea
-            value={nuevaRespuesta}
-            onChange={(e) => setNuevaRespuesta(e.target.value)}
-            placeholder="Escribe aquí la respuesta."
-            className="w-full mt-2 border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
-          />
+        {/* LISTA DE FLASHCARDS EXISTENTES */}
+        <div className="space-y-6">
+          {flashcards.map((item) => (
+            <CardDetailComponent
+              key={item.flashcard_code}
+              id={item.flashcard_code}
+              title="Pregunta"
+              pregunta={item.sentence}
+              respuesta={item.explanation}
+              onChange={actualizarCampo}
+              onDelete={eliminarPregunta}
+            />
+          ))}
         </div>
-
-        <div className="flex sm:flex-col items-center justify-around sm:justify-center gap-3 sm:ml-2">
-          <button
-            onClick={agregarPregunta}
-            className="text-emerald-900 hover:text-primary-medium"
-            title="Guardar nueva flashcard">
-            <Save size={22} />
-          </button>
-        </div>
-      </div>
-
-      {/* LISTA DE FLASHCARDS EXISTENTES */}
-      <div className="space-y-6">
-        {flashcards.map((item) => (
-          <CardDetailComponent
-            key={item.flashcard_code}
-            id={item.flashcard_code}
-            title="Pregunta"
-            pregunta={item.sentence}
-            respuesta={item.explanation}
-            onChange={actualizarCampo}
-            onDelete={eliminarPregunta}
-          />
-        ))}
       </div>
     </div>
   );

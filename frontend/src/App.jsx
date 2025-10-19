@@ -26,15 +26,18 @@ export default function Home() {
           <Route element={<HeaderLayout />}>
             <Route path="login" element={<LoginPage />} />
             <Route path="register" element={<CreateAccountPage />} />
-            <Route path="create-topic" element={<CreateTopicPage />} />
-            <Route path="content-detail" element={<ContentDetailPage />} />
-            <Route path="go-test" element={<TestPage />} />
-            <Route path="study" element={<FlashcardsPage />} />
           </Route>
 
           {/* Layout con Sidebar + Header */}
           <Route element={<TopicLayout />}>
             <Route path="main" element={<MainUserPage />} />
+            <Route path="create-topic" element={<CreateTopicPage />} />
+            <Route
+              path="subMain/:topicId/content-detail"
+              element={<ContentDetailPage />}
+            />
+            <Route path="subMain/:topicId/go-test" element={<TestPage />} />
+            <Route path="subMain/:topicId/study" element={<FlashcardsPage />} />
           </Route>
 
           <Route element={<MainLayout />}>

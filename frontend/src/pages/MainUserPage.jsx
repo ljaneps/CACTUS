@@ -16,14 +16,12 @@ export default function MainUserPage() {
 
   return (
     <CheckAuth requireAuth={true}>
-      <div>
         <MainUserSection
           user={user}
           selectedTopic={selectedTopic}
           setSelectedTopic={setSelectedTopic}
         />
         {selectedTopic && <SubTopicUserPage topic={selectedTopic} />}
-      </div>
     </CheckAuth>
   );
 }
