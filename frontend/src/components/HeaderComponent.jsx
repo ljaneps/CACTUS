@@ -3,7 +3,7 @@ import logo from "../assets/pictures/logo.png";
 
 export default function HeaderComponent({ onOpenSidebar }) {
   return (
-    <header className="bg-gradient-to-r from-primary to-secondary shadow text-white">
+    <header className="bg-gradient-to-r from-primary bg-secondary to-primary-light shadow text-white">
       <div className="mx-auto max-w-7x2 px-4 sm:px-6 lg:px-16">
         <div className="flex h-20 items-center justify-between">
           {/* Izquierda: logo + botón móvil */}

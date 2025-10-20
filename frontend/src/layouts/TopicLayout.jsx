@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import { X, Plus, BookOpen, GraduationCap, Home, Star, ArrowDown } from "lucide-react";
+import {
+  X,
+  Plus,
+  BookOpen,
+  Home,
+  Star,
+} from "lucide-react";
 import HeaderComponent from "../components/HeaderComponent";
 import SidebarInitComponent from "../components/SidebarInitComponent";
 
@@ -15,22 +21,12 @@ export default function TopicLayout() {
   if (path.includes("/main")) {
     navigation = [
       { name: "Crear nuevo tema", icon: Plus, href: "/create-topic" },
-    ];
-  } else if (path.includes("/study")) {
-    navigation = [
-      { name: "Volver al inicio", icon: Home, href: "/main" },
-      { name: "Favoritos ", icon: Star, href: "/main" },
-      { name: "Ir a test", icon: GraduationCap, href: "/go-test" },
-    ];
-  } else if (path.includes("/go-test")) {
-    navigation = [
-      { name: "Volver al inicio", icon: Home, href: "/main" },
-      { name: "Estudiar", icon: BookOpen, href: "/study" },
+      { name: "Otros temas", icon: BookOpen, href: "/free-topics" },
     ];
   } else {
     navigation = [
-      { name: "Inicio", icon: Home, href: "/main" },
-      { name: "Crear nuevo tema", icon: Plus, href: "/create-topic" },
+      { name: "Home", icon: Home, href: "/main" },
+      { name: "Favoritos ", icon: Star, href: "/main" },
     ];
   }
 

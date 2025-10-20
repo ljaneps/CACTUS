@@ -9,14 +9,16 @@ export function TestSection() {
   const { subtopic, topic } = location.state || {};
   const flashcards = subtopic?.flashcards || [];
 
-  // ✅ Aplanar todas las preguntas de las flashcards
   const allQuestions = flashcards.flatMap((fc) => fc.questions || []);
 
-  // ✅ Estado para manejar qué pregunta se muestra
+
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [answers, setAnswers] = useState([]); 
+  const [showResult, setShowResult] = useState(false);
+
   const currentQuestion = allQuestions[currentIndex];
 
-  // ✅ Mapeamos las opciones para el Card
+
   const options =
     currentQuestion?.options?.map((opt) => ({
       value: opt.letter,
@@ -25,9 +27,19 @@ export function TestSection() {
       isCorrect: opt.letter === currentQuestion.option_correct_letter,
     })) || [];
 
-  // ✅ Handlers
+
   const handleOptionChange = (value) => {
-    console.log("Seleccionaste:", value);
+    const isCorrect = value === currentQuestion.option_correct_letter;
+
+    setAnswers((prev) => {
+      const updated = [...prev];
+      updated[currentIndex] = {
+        question: currentQuestion.question,
+        selected: value,
+        isCorrect,
+      };
+      return updated;
+    });
   };
 
   const handlePrev = () => {
@@ -35,8 +47,18 @@ export function TestSection() {
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => Math.min(prev + 1, allQuestions.length - 1));
+    if (currentIndex < allQuestions.length - 1) {
+      setCurrentIndex((prev) => prev + 1);
+    } else {
+      setShowResult(true);
+    }
   };
+
+
+  const total = answers.length;
+  const correct = answers.filter((a) => a?.isCorrect).length;
+  const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
+  const passed = percentage >= 70; // Por ejemplo, 70% es aprobado
 
   return (
     <div className="min-h-screen bg-white">
@@ -48,12 +70,29 @@ export function TestSection() {
           onBack={() => navigate(`/subMain/${topic?.topic_code}`)}
         />
       </div>
-
-      {/* CONTENIDO PRINCIPAL */}
       <div className="flex-1 flex flex-col items-center justify-start pt-0">
-        {currentQuestion ? (
+        {showResult ? (
+          <div className="flex flex-col items-center mt-10">
+            <h2 className="text-2xl font-bold mb-4">🎯 Resultado del Test</h2>
+            <p className="text-lg mb-2">
+              Aciertos: {correct} / {total}
+            </p>
+            <p
+              className={`text-xl font-semibold ${
+                passed ? "text-green-600" : "text-red-600"
+              }`}>
+              {percentage}% — {passed ? "✅ Aprobado" : "❌ Suspendido"}
+            </p>
+
+            <button
+              onClick={() => navigate(`/subMain/${topic?.topic_code}`)}
+              className="mt-6 px-6 py-2 bg-primary-light text-white rounded-md hover:bg-primary-medium">
+              Volver al subtema
+            </button>
+          </div>
+        ) : currentQuestion ? (
           <CardTestComponent
-            key={currentQuestion.id || currentQuestion.question} // 🔑 CLAVE ÚNICA
+            key={currentQuestion.id || currentQuestion.question}
             title={currentQuestion.question}
             options={options}
             onOptionChange={handleOptionChange}

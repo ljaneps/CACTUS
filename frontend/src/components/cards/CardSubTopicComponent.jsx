@@ -30,22 +30,22 @@ export function CardSubTopicComponent({
   };
 
   return (
-    <div className="w-96 h-72 p-6 bg-white border border-gray-300 rounded-lg shadow-sm dark:bg-white flex flex-col justify-between">
+    <div className="w-96 h-72 p-6 bg-gradient-to-b from-primary to-secondary border-gray-300 rounded-lg shadow-sm dark:bg-white flex flex-col justify-between">
       {/* --- CONTENIDO --- */}
       <div>
         {href ? (
           <a href={href}>
-            <h5 className="mb-5 text-lg font-bold tracking-tight text-gray-900 dark:text-primary text-center hover:text-primary transition-colors">
+            <h5 className="mb-5 text-lg font-bold tracking-tight text-white dark:text-white text-center hover:text-white transition-colors">
               {title}
             </h5>
           </a>
         ) : (
-          <h5 className="mb-5 text-lg font-bold tracking-tight text-gray-900 dark:text-primary text-center">
+          <h5 className="mb-5 text-lg font-bold tracking-tight text-white dark:text-white text-center">
             {title}
           </h5>
         )}
 
-        <p className="mb-2 font-normal text-gray-700 dark:text-gray-400 text-justify">
+        <p className="mb-2 font-normal text-gray-2 dark:text-gray-200 text-justify">
           {description}
         </p>
       </div>
@@ -55,25 +55,25 @@ export function CardSubTopicComponent({
         {/* Botón 1 - Estudiar */}
         <button
           onClick={handleStudyClick}
-          className="text-emerald-900 hover:text-primary-medium"
+          className="text-white hover:text-primary-medium"
           title="Estudiar">
-          <BookOpenText size={24} />
+          <BookOpenText size={26} />
         </button>
 
         {/* Botón 2 - List detail Flashcards */}
         <button
           onClick={handleListClick}
-          className="text-emerald-900 hover:text-primary-medium"
+          className="text-white hover:text-primary-medium"
           title="Flashcards detalle">
-          <Library size={24} />
+          <Library size={26} />
         </button>
 
         {/* Botón 3 - TEST */}
         <button
           onClick={handleGoClick}
-          className="text-emerald-900 hover:text-primary-medium"
+          className="text-white hover:text-primary-medium"
           title="Test">
-          <BookCheck size={24} />
+          <BookCheck size={26} />
         </button>
       </div>
     </div>

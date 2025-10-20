@@ -4,9 +4,12 @@ import BoxBajoIcon from "../assets/icons/icon_box_bajo.svg";
 import BoxMedioIcon from "../assets/icons/icon_box_medio.svg";
 import { useSidebar } from "../context/SidebarContext";
 import LogoutButton from "./LogoutComponent";
-import { FlagTriangleLeft, CalendarClock, Star } from "lucide-react";
+import { FlagTriangleLeft, CalendarClock, Star, Home } from "lucide-react";
 
-const navigation = [{ name: "Favoritos", icon: Star, current: false }];
+const navigation = [
+  { name: "Home", icon: Home, href: "/main", current: false },
+  { name: "Favoritos", icon: Star, href: "/create-topic", current: false },
+];
 
 const getColorClass = (c) =>
   c === "bajo"
@@ -24,19 +27,16 @@ export default function SidebarComponent() {
 
   const progreso = [
     {
-      title: "Tarea 1",
       icon: BoxBajoIcon,
       porcentaje: selectedTopic?.low_percent,
       color: "bajo",
     },
     {
-      title: "Tarea 2",
       icon: BoxMedioIcon,
       porcentaje: selectedTopic?.intermediate_percent,
       color: "medio",
     },
     {
-      title: "Tarea 3",
       icon: BoxAltoIcon,
       porcentaje: selectedTopic?.high_percent,
       color: "alto",
@@ -64,7 +64,6 @@ export default function SidebarComponent() {
         )}
 
         <LogoutButton />
-        
       </div>
 
       {/* Navigation */}
@@ -72,7 +71,7 @@ export default function SidebarComponent() {
         {navigation.map((item) => (
           <a
             key={item.name}
-            href="#"
+            href={item.href}
             className={classNames(
               item.current
                 ? "bg-primary/10 text-primary"

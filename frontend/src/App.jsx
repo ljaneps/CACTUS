@@ -16,6 +16,7 @@ import CreateTopicPage from "./pages/CreateTopicPage";
 import ContentDetailPage from "./pages/ContentsDetailPage";
 import TestPage from "./pages/TestPage";
 import FlashcardsPage from "./pages/FlashcardsPage";
+import FreeTopicsPage from "./pages/FreeTopicsPage";
 
 export default function Home() {
   return (
@@ -32,6 +33,7 @@ export default function Home() {
           <Route element={<TopicLayout />}>
             <Route path="main" element={<MainUserPage />} />
             <Route path="create-topic" element={<CreateTopicPage />} />
+            <Route path="free-topics" element={<FreeTopicsPage />} />
             <Route
               path="subMain/:topicId/content-detail"
               element={<ContentDetailPage />}

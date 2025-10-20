@@ -20,7 +20,7 @@ export function CardDetailComponent({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-4 border rounded-lg p-4 shadow-sm">
+    <div className="flex flex-col sm:flex-row gap-4 border rounded-lg p-4 shadow-sm bg-gradient-to-r from-primary to-secondary">
       {/* Pregunta */}
       <div className="flex-1 border rounded-md p-4 text-center text-gray-700 bg-gray-50">
         <strong>{title}</strong>
@@ -56,14 +56,14 @@ export function CardDetailComponent({
         {editando ? (
           <button
             onClick={guardarCambios}
-            className="text-emerald-900 hover:text-primary-medium"
+            className="text-white hover:text-primary-medium"
             title="Guardar">
             <Save size={22} />
           </button>
         ) : (
           <button
             onClick={() => setEditando(true)}
-            className="text-emerald-900 hover:text-primary-medium"
+            className="text-white hover:text-primary-medium"
             title="Editar">
             <Edit size={22} />
           </button>
@@ -71,7 +71,7 @@ export function CardDetailComponent({
 
         <button
           onClick={() => onDelete(id)}
-          className="text-emerald-900 hover:text-primary-medium"
+          className="text-white hover:text-red-600"
           title="Eliminar">
           <Trash size={22} />
         </button>

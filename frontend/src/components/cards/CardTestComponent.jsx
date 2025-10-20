@@ -46,7 +46,7 @@ export function CardTestComponent({
                     htmlFor={`option-${index}-${title}`}
                     className="flex items-center justify-between w-full rounded-md px-4 py-2 cursor-pointer 
                    bg-gray-100 hover:bg-gray-300 
-                   peer-checked:bg-emerald-600 peer-checked:text-white transition-colors duration-200">
+                   peer-checked:bg-primary-light peer-checked:text-white transition-colors duration-200">
                     <span className="text-sm font-medium text-gray-900 peer-checked:text-white">
                       {option.label}
                     </span>
@@ -59,19 +59,36 @@ export function CardTestComponent({
           {/* --- CARA TRASERA: RESPUESTAS --- */}
           <div className="absolute w-full h-full backface-hidden rotate-y-180 flex flex-col items-center justify-center">
             <h5 className="text-lg font-bold text-gray-900 mb-4">Respuestas</h5>
+
             <div className="space-y-3 w-full px-6">
               {options.map((option) => (
                 <div
                   key={option.value}
-                  className="flex items-center bg-gray-100 rounded-md px-4 py-2 text-left">
-                  {option.isCorrect ? (
-                    <Check className="w-5 h-5 text-green-500 mr-2" />
-                  ) : (
-                    <X className="w-5 h-5 text-red-500 mr-2" />
+                  className={`rounded-md px-4 py-2 text-left ${
+                    option.isCorrect
+                      ? "bg-green-100 border border-green-300"
+                      : "bg-gray-100"
+                  }`}>
+                  <div className="flex items-center">
+                    {option.isCorrect ? (
+                      <Check className="w-5 h-5 text-green-500 mr-2" />
+                    ) : (
+                      <X className="w-5 h-5 text-red-500 mr-2" />
+                    )}
+                    <span
+                      className={`text-sm font-medium ${
+                        option.isCorrect ? "text-green-800" : "text-gray-900"
+                      }`}>
+                      {option.label}
+                    </span>
+                  </div>
+
+                  {/* Mostrar explicación solo en la opción correcta */}
+                  {option.isCorrect && option.explanation && (
+                    <p className="mt-2 ml-7 text-base text-gray-700 italic leading-snug">
+                      💡 {option.explanation}
+                    </p>
                   )}
-                  <span className="text-sm font-medium text-gray-900">
-                    {option.label}
-                  </span>
                 </div>
               ))}
             </div>

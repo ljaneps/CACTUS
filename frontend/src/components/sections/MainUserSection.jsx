@@ -49,6 +49,7 @@ export default function MainUserSection() {
       {userTopics.map((item) => (
         <div key={item.topic.topic_code} className="flex items-center">
           <CardMainTopicComponent
+            currentuser={user.username}
             id={item.topic.topic_code}
             title={item.topic.topic_title}
             description={item.topic.description}
@@ -58,6 +59,7 @@ export default function MainUserSection() {
             intermediate_percent={item.intermediate_percent}
             high_percent={item.high_percent}
             onSelect={() => handleSelect(item.topic.topic_code)}
+            option="delete"
           />
         </div>
       ))}

@@ -51,6 +51,15 @@ class QuestionResponseSchema(BaseModel):
 class FlashcardSchema(BaseModel):
     titulo: str
     explicacion: str
+    preguntas: Optional[List[QuestionSchema]] = []
+    class Config:
+        from_attributes = True
+        
+
+class FlashcardInfoSchema(BaseModel):
+    subtopic_code: Optional[int] = None
+    titulo: str
+    explicacion: str
     preguntas: Optional[str] = None
 
     class Config:
@@ -96,6 +105,16 @@ class TopicSchema(BaseModel):
     categoria: str
     descripcion: str
     subtemas: List[SubtopicSchema]
+
+    class Config:
+        from_attributes = True
+        
+
+class TopicSubtopicSchema(BaseModel):
+    titulo: str
+    categoria: str
+    descripcion: str
+    subtemas: List[str]
 
     class Config:
         from_attributes = True

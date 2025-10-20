@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Save } from "lucide-react";
+import { Save, Sparkles } from "lucide-react";
 import { CardDetailComponent } from "../cards/CardDetailComponent";
 import SectionHeader from "./HeaderSection";
 
@@ -47,8 +47,6 @@ export function ContentsDetailSection() {
     setPreguntas(preguntas.filter((p) => p.id !== id));
   };
 
-  console.log("SUBTOPIC:", subtopic?.flashcards);
-
   return (
     <div className="min-h-screen bg-white">
       <div>
@@ -60,16 +58,16 @@ export function ContentsDetailSection() {
         />
       </div>
 
-      <div className="min-h-screen bg-white px-16">
+      <div className="min-h-screen px-16">
         {/* FORMULARIO PARA NUEVA FLASHCARD */}
-        <div className="flex flex-col sm:flex-row gap-4 border rounded-lg p-4 shadow-sm mb-8">
-          <div className="flex-1 border rounded-md p-4 text-center text-gray-700 bg-gray-50">
+        <div className="flex flex-col sm:flex-row gap-4 border rounded-lg p-4 shadow-sm mb-8 bg-gradient-to-r from-primary to-primary-light">
+          <div className="flex-1 border rounded-md p-4 text-center text-gray-700 bg-white">
             <strong>Nueva pregunta</strong>
             <textarea
               value={nuevaPregunta}
               onChange={(e) => setNuevaPregunta(e.target.value)}
               placeholder="Escribe tu pregunta aquí."
-              className="w-full mt-2 border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+              className="w-full mt-2 border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-primary-light focus:outline-none"
             />
           </div>
 
@@ -79,16 +77,22 @@ export function ContentsDetailSection() {
               value={nuevaRespuesta}
               onChange={(e) => setNuevaRespuesta(e.target.value)}
               placeholder="Escribe aquí la respuesta."
-              className="w-full mt-2 border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+              className="w-full mt-2 border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-primary-light focus:outline-none"
             />
           </div>
 
           <div className="flex sm:flex-col items-center justify-around sm:justify-center gap-3 sm:ml-2">
             <button
               onClick={agregarPregunta}
-              className="text-emerald-900 hover:text-primary-medium"
+              className="text-white hover:text-primary-medium"
               title="Guardar nueva flashcard">
               <Save size={22} />
+            </button>
+            <button
+              onClick={agregarPregunta}
+              className="text-white hover:text-primary-medium"
+              title="Generar respuesta">
+              <Sparkles size={22} />
             </button>
           </div>
         </div>

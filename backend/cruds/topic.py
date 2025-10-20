@@ -57,7 +57,7 @@ def save_topic_from_schema(db: Session, topic_schema: TopicSchema):
 
 def save_user_topic(db: Session, username: str, topic_id: int,
                     date_goal: str = None,
-                    low_percent: int = 0, intermediate_percent: int = 0, high_percent: int = 0):
+                    low_percent: int = 100, intermediate_percent: int = 0, high_percent: int = 0):
 
     if isinstance(date_goal, str):
         try:

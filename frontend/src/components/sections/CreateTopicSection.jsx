@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { ButtonComponent } from "../buttons/ButtonComponent";
 import { useNavigate } from "react-router-dom";
 
@@ -27,36 +27,43 @@ export default function CreateTopicSection() {
     setError("");
     setLoading(true);
 
-    if (!formData.tema.trim()) {
-      setError("Este campo es obligatorio");
-      setLoading(false);
-      return;
-    }
-
-    setError("");
-
     try {
       const token = localStorage.getItem("access_token");
+      console.log("Mi TOKEN:"+token);
       if (!token) throw new Error("No autenticado");
-      console.log("Token de autenticación:", token);
+
+      const body = {
+        tema: formData.tema,
+        puntos: formData.puntos,
+        archivo: formData.archivo ? formData.archivo.name : null,
+        objetivo: formData.objetivo,
+      };
+
       const response = await fetch(
-        "http://localhost:8000/topics/generar-temario-mock",
+        //"http://localhost:8000/topics/generar-temario",
+        "http://localhost:8000/topics/generar-subtemas",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(body),
         }
       );
-      if (!response.ok) throw new Error("Error al crear el tema");
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Error al crear el tema: ${errText}`);
+      }
+
       const data = await response.json();
       console.log("Tema creado con éxito:", data);
-      console.log("Formulario enviado:", formData);
       navigate("/main");
     } catch (err) {
       setError(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
