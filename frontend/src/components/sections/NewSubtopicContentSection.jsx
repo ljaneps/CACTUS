@@ -5,13 +5,11 @@ import { CardDetailComponent } from "../cards/CardDetailComponent";
 import SectionHeader from "./HeaderSection";
 import { CardSubtopicEditComponent } from "../cards/CardNewSubtopicComponent";
 
-export function ContentsDetailSection() {
+export function NewSubtopicContentsSection() {
   const location = useLocation();
   const navigate = useNavigate();
   const { subtopic, topic } = location.state || {};
-  const [flashcardsState, setFlashcardsState] = useState(
-    subtopic?.flashcards || []
-  );
+  const flashcards = subtopic?.flashcards || [];
 
   const [preguntas, setPreguntas] = useState([
     {
@@ -21,51 +19,29 @@ export function ContentsDetailSection() {
     },
   ]);
 
+  // Estado para la nueva flashcard
   const [nuevaPregunta, setNuevaPregunta] = useState("");
   const [nuevaRespuesta, setNuevaRespuesta] = useState("");
 
-  const crearFlashcard = async () => {
-    if (!subtopic?.subtopic_code) {
-      alert("No se puede crear la flashcard: falta el subtopic_code");
-      return;
-    }
+  // Agregar una nueva flashcard
+  const agregarPregunta = () => {
+    if (!nuevaPregunta.trim() || !nuevaRespuesta.trim()) return;
 
-    if (!nuevaPregunta.trim() || !nuevaRespuesta.trim()) {
-      alert("Por favor, completa la pregunta y la respuesta antes de guardar.");
-      return;
-    }
+    const nueva = {
+      id: Date.now(),
+      pregunta: nuevaPregunta,
+      respuesta: nuevaRespuesta,
+    };
 
-    try {
-      const response = await fetch("http://127.0.0.1:8000/topics/flashcards/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          subtopic_code: subtopic.subtopic_code,
-          titulo: nuevaPregunta,
-          explicacion: nuevaRespuesta,
-        }),
-      });
+    setPreguntas([...preguntas, nueva]);
+    setNuevaPregunta("");
+    setNuevaRespuesta("");
+  };
 
-      if (!response.ok)
-        throw new Error(`Error al crear la flashcard: ${response.statusText}`);
-
-      const data = await response.json();
-      console.log("Flashcard creada:", data);
-
-      setFlashcardsState((prev) => [
-        ...prev,
-        {
-          flashcard_code: data.flashcard_code,
-          sentence: data.sentence,
-          explanation: data.explanation,
-        },
-      ]);
-
-      setNuevaPregunta("");
-      setNuevaRespuesta("");
-    } catch (err) {
-      console.error("Error al crear flashcard:", err);
-    }
+  const guardarCambios = () => {
+    onChange(id, "pregunta", tempPregunta);
+    onChange(id, "respuesta", tempRespuesta);
+    setEditando(false);
   };
 
   const actualizarCampo = (id, campo, valor) => {
@@ -118,13 +94,13 @@ export function ContentsDetailSection() {
 
           <div className="flex sm:flex-col items-center justify-around sm:justify-center gap-3 sm:ml-2">
             <button
-              onClick={crearFlashcard}
+              onClick={agregarPregunta}
               className="text-white hover:text-primary-medium"
               title="Guardar nueva flashcard">
               <Save size={22} />
             </button>
             <button
-              onClick={crearFlashcard}
+              onClick={agregarPregunta}
               className="text-white hover:text-primary-medium"
               title="Generar respuesta">
               <Sparkles size={22} />
@@ -133,7 +109,7 @@ export function ContentsDetailSection() {
         </div>
 
         <div className="space-y-6">
-          {flashcardsState.map((item) => (
+          {flashcards.map((item) => (
             <CardDetailComponent
               key={item.flashcard_code}
               id={item.flashcard_code}
@@ -142,8 +118,6 @@ export function ContentsDetailSection() {
               respuesta={item.explanation}
               onChange={actualizarCampo}
               onDelete={eliminarPregunta}
-              topic={topic}
-              subtopic={subtopic}
             />
           ))}
         </div>

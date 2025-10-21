@@ -9,11 +9,8 @@ export function FlashcardsSection() {
   const navigate = useNavigate();
   const { subtopic, topic } = location.state || {};
   const flashcards = subtopic?.flashcards || [];
-
-  // Estado para controlar qué flashcard se muestra
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Navegar entre flashcards
   const handleNext = () => {
     if (currentIndex < flashcards.length - 1) {
       setCurrentIndex(currentIndex + 1);
@@ -26,14 +23,12 @@ export function FlashcardsSection() {
     }
   };
 
-  // Flashcard actual
   const currentFlashcard = flashcards[currentIndex];
 
   if (!currentFlashcard) return <p>No hay flashcards disponibles.</p>;
 
   return (
     <div className="min-h-screen">
-      {/* ENCABEZADO */}
       <div>
         <SectionHeader
           topic={topic?.topic_title}
@@ -42,7 +37,6 @@ export function FlashcardsSection() {
         />
       </div>
 
-      {/* CONTENIDO PRINCIPAL (centrado) */}
       <div className="flex-1 flex flex-col items-center justify-start pt-4">
         <CardComponent
           title={currentFlashcard.sentence}

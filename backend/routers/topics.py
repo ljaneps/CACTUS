@@ -104,89 +104,73 @@ async def generar_temario(
     }
 
     payload = {
-        "model": "z-ai/glm-4.5-air:free",
-        "reasoning": {"effort": "none"},
+        "model": "z-ya-text-1",
         "messages": [{"role": "user", "content": prompt}],
-        "response_format": {"type": "json_schema", "json_schema": {
-            "name": "clase",
-            "strict": True,
-            "schema": {
-                "type": "object",
-                "properties": {
-                    "titulo": {
-                        "type": "string",
-                        "description": "Topic title"
-                    },
-                    "categoria": {
-                        "type": "string",
-                        "description": "Topic Category"
-                    },
-                    "descripcion": {
-                        "type": "string",
-                        "description": "Topic description"
-                    },
-                    "subtemas": {
-                        "type": "object",
-                        "properties": {
-                            "titulo": {
-                                "type": "string",
-                                "description": "Subtopic title"
-                            },
-                            "descripcion": {
-                                "type": "string",
-                                "description": "Subtopic description"
-                            },
-                            "flashcards": {
+        "temperature": 0.7,
+        "response_format": {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "clase",
+                "strict": True,
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "titulo": {"type": "string"},
+                        "categoria": {"type": "string"},
+                        "descripcion": {"type": "string"},
+                        "subtemas": {
+                            "type": "array",
+                            "items": {
                                 "type": "object",
                                 "properties": {
-                                    "titulo": {
-                                        "type": "string",
-                                        "description": "Flashcard title"
-                                    },
-                                    "explicacion": {
-                                        "type": "string",
-                                        "description": "Flashcard description"
-                                    },
-                                    "preguntas": {
-                                        "type": "object",
-                                        "properties": {
-                                            "enunciado": {
-                                                "type": "string",
-                                                "description": "sentence"
-                                            },
-                                            "opciones": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "letter": {
-                                                        "type": "string",
-                                                        "description": "letter"
-                                                    },
-                                                    "option": {
-                                                        "type": "string",
-                                                        "description": "option"
-                                                    },
-                                                    "explanation": {
-                                                        "type": "string",
-                                                        "description": "Option explanation"
-                                                    }}
-                                            },
-                                            "respuesta_correcta": {
-                                                "type": "string",
-                                                "description": "letter correct option"
-                                            }}
-                                    }}
-                            }}
-                    }},
-                "required": ["titulo", "categoria"],
-                "additionalProperties": False}}},
-        "temperature": 0.7,
+                                    "titulo": {"type": "string"},
+                                    "descripcion": {"type": "string"},
+                                    "flashcards": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "titulo": {"type": "string"},
+                                                "explicacion": {"type": "string"},
+                                                "preguntas": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "enunciado": {"type": "string"},
+                                                            "opciones": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "letter": {"type": "string"},
+                                                                        "option": {"type": "string"},
+                                                                        "explanation": {"type": "string"}
+                                                                    }
+                                                                }
+                                                            },
+                                                            "respuesta_correcta": {"type": "string"}
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": ["titulo", "categoria"]
+                }
+            }
+        }
     }
 
     async with httpx.AsyncClient(timeout=httpx.Timeout(120.0)) as client:
         response = await client.post(url, headers=headers, json=payload)
         response.raise_for_status()
         data = response.json()
-        print("🔍 Respuesta completa de OpenRouter:", data)
+        print("Respuesta completa de OpenRouter:", data)
 
     try:
         raw_message = data["choices"][0]["message"]
@@ -210,7 +194,7 @@ async def generar_temario(
         )
         clean_json = re.sub(r"```(?:json)?", "", clean_json).strip()
 
-        # ✅ Extrae el bloque JSON (primer { hasta último })
+        # Extrae el bloque JSON (primer { hasta último })
         start = clean_json.find("{")
         end = clean_json.rfind("}")
         if start == -1 or end == -1 or start >= end:
@@ -220,13 +204,13 @@ async def generar_temario(
 
         json_str = clean_json[start:end+1]
 
-        # ✅ Intentar parsear con json y luego con json5
+        # Intentar parsear con json y luego con json5
         try:
             temario_dict = json.loads(json_str)
         except json.JSONDecodeError:
             temario_dict = json5.loads(json_str)
 
-        # ✅ Validar estructura con Pydantic
+        # Validar estructura con Pydantic
         temario = TopicSchema(**temario_dict)
 
     except (json.JSONDecodeError, ValidationError) as e:
@@ -243,7 +227,7 @@ async def generar_temario(
         date_goal=req.objetivo
     )
 
-    print("✅ Tema generado:", temario.titulo)
+    print("Tema generado:", temario.titulo)
 
     return temario
 
@@ -711,6 +695,8 @@ async def generar_temario_mock(
     return topic
 
 # Todos los TOPIC
+
+
 @router.get("/topics", response_model=list[topic_schema.TopicInfoSchema])
 def get_all_topics(db: Session = Depends(get_db)):
     topics = db.query(models.Topic).all()
@@ -723,6 +709,7 @@ def get_all_topics(db: Session = Depends(get_db)):
 #      TOPICS por USUARIO       #
 #################################
 
+# GET - Obtener los temarios del usuario
 @router.get("/topics-by-user/{username}", response_model=list[topic_schema.UserTopicBasicSchema])
 def get_user_topics(username: str, db: Session = Depends(get_db)):
     user_topics = (
@@ -737,6 +724,40 @@ def get_user_topics(username: str, db: Session = Depends(get_db)):
             status_code=404, detail="No topics found for this user")
 
     return user_topics
+
+# POST - Asociar un temario a un usuario
+
+
+@router.post("/topics-by-user/{username}/{topic_code}", response_model=topic_schema.UserTopicBasicSchema)
+def create_user_topic(
+    username: str,
+    topic_code: int,
+    db: Session = Depends(get_db)
+):
+    existing_entry = db.query(models.UserTopic).filter_by(
+        username=username,
+        topic_code=topic_code
+    ).first()
+
+    if existing_entry:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"El usuario '{username}' ya tiene asociado el topic '{topic_code}'"
+        )
+
+    new_user_topic = models.UserTopic(
+        username=username,
+        topic_code=topic_code,
+        low_percent=100,
+        intermediate_percent=0,
+        high_percent=0
+    )
+
+    db.add(new_user_topic)
+    db.commit()
+    db.refresh(new_user_topic)
+
+    return new_user_topic
 
 
 # DELETE - Eliminar el topic para un usuario.
@@ -833,5 +854,3 @@ def update_flashcard(flashcard_code: int, flashcard: topic_schema.FlashcardInfoS
     db.commit()
     db.refresh(db_flashcard)
     return db_flashcard
-
-

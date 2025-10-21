@@ -17,6 +17,7 @@ import ContentDetailPage from "./pages/ContentsDetailPage";
 import TestPage from "./pages/TestPage";
 import FlashcardsPage from "./pages/FlashcardsPage";
 import FreeTopicsPage from "./pages/FreeTopicsPage";
+import NewSubtopicContentPage from "./pages/NewSubtopicContentPage";
 
 export default function Home() {
   return (
@@ -40,6 +41,10 @@ export default function Home() {
             />
             <Route path="subMain/:topicId/go-test" element={<TestPage />} />
             <Route path="subMain/:topicId/study" element={<FlashcardsPage />} />
+            <Route
+              path="subMain/:topicId/new-sub"
+              element={<NewSubtopicContentPage />}
+            />
           </Route>
 
           <Route element={<MainLayout />}>

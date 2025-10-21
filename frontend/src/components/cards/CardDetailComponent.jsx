@@ -8,6 +8,8 @@ export function CardDetailComponent({
   respuesta,
   onChange,
   onDelete,
+  topic,
+  subtopic,
 }) {
   const [editando, setEditando] = useState(false);
   const [tempPregunta, setTempPregunta] = useState(pregunta);

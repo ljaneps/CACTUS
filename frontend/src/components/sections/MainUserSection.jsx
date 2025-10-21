@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 export default function MainUserSection() {
   const { user } = useAuth();
   const [userTopics, setUserTopics] = useState([]);
-  const [selectedTopic, setSelectedTopic] = useState(null); // ✅ se define aquí
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -21,8 +20,9 @@ export default function MainUserSection() {
         if (!response.ok) {
           throw new Error(`Error al obtener temas: ${response.statusText}`);
         }
+
         const data = await response.json();
-        console.log(data);
+        console.log("Temas del usuario:", data);
         setUserTopics(data);
       } catch (error) {
         console.error("Error al obtener los temas del usuario:", error);
@@ -30,18 +30,34 @@ export default function MainUserSection() {
         setLoading(false);
       }
     };
+
     fetchUserTopics();
   }, [user]);
 
   const handleSelect = (topicId) => {
     const topic = userTopics.find((item) => item.topic.topic_code === topicId);
-    setSelectedTopic(topic); // ✅ ahora esta función sí existe
+    if (!topic) return console.warn("No se encontró el tema con ID:", topicId);
+
     navigate(`/subMain/${topicId}`, { state: { topic } });
-    console.log("Seleccionaste el tema:", topic);
   };
 
+  const handleDelete = (id) => {
+    setUserTopics((prevTopics) =>
+      prevTopics.filter((item) => item.topic.topic_code !== id)
+    );
+  };
+
+
   if (loading) {
-    return <p className="text-center mt-10">Cargando temas...</p>;
+    return <p className="text-center mt-10 text-gray-500">Cargando temas...</p>;
+  }
+
+  if (userTopics.length === 0) {
+    return (
+      <p className="text-center mt-10 text-gray-300 text-4xl p-9">
+        No tienes temas asignados todavía.
+      </p>
+    );
   }
 
   return (
@@ -60,6 +76,7 @@ export default function MainUserSection() {
             high_percent={item.high_percent}
             onSelect={() => handleSelect(item.topic.topic_code)}
             option="delete"
+            onDelete={handleDelete}
           />
         </div>
       ))}

@@ -12,7 +12,8 @@ export function CardMainTopicComponent({
   intermediate_percent,
   high_percent,
   onSelect,
-  option, // "delete" o "add"
+  option,
+  onDelete,
 }) {
   const navigate = useNavigate();
 
@@ -41,9 +42,12 @@ export function CardMainTopicComponent({
         { method: "DELETE" }
       );
 
-      if (!response.ok) throw new Error("Error al eliminar el tema");
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Error al eliminar el tema: ${errorText}`);
+      }
       console.log("Tema eliminado con éxito");
-      navigate("/main");
+      if (onDelete) onDelete(id);
     } catch (error) {
       console.error("Error al eliminar el tema:", error);
     }
@@ -58,33 +62,38 @@ export function CardMainTopicComponent({
     try {
       const response = await fetch(
         `http://localhost:8000/topics/topics-by-user/${currentuser}/${id}`,
-        { method: "POST" }
+        {
+          method: "POST",
+        }
       );
-      if (!response.ok) throw new Error("Error al añadir el tema");
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Error al añadir el tema: ${errorText}`);
+      }
+
       console.log("Tema añadido con éxito");
       navigate("/main");
     } catch (error) {
       console.error("Error al añadir el tema:", error);
+      alert("No se pudo añadir el tema. Intenta nuevamente.");
     }
   };
 
   return (
-    <div className="w-96 h-92 bg-white border border-gray-300 rounded-lg shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-md transition">
-      {/* Header */}
+    <div className="w-96 h-80 bg-white border border-gray-300 rounded-lg shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-md transition">
       <div
         className="bg-gradient-to-r from-primary to-secondary text-white cursor-pointer px-4 py-4 text-center"
         onClick={handleClick}>
         <h5 className="text-lg font-bold tracking-tight">{title}</h5>
       </div>
 
-      {/* Body */}
       <div className="p-6 flex-1">
         <p className="mb-2 font-normal text-gray-700 text-justify">
           {description}
         </p>
       </div>
 
-      {/* Footer */}
       <div className="flex justify-end mt-2 border-t border-gray-200 pt-3 pb-3 pr-3 gap-4">
         {option === "delete" ? (
           <button
