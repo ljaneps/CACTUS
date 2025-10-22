@@ -36,7 +36,7 @@ export function CardTestComponent({
                 <div key={option.value} className="flex items-center">
                   <input
                     type="radio"
-                    name={`options-${title}`} // 👈 grupo único por tarjeta
+                    name={`options-${title}`} 
                     id={`option-${index}-${title}`}
                     value={option.value}
                     className="peer hidden"
@@ -83,7 +83,6 @@ export function CardTestComponent({
                     </span>
                   </div>
 
-                  {/* Mostrar explicación solo en la opción correcta */}
                   {option.isCorrect && option.explanation && (
                     <p className="mt-2 ml-7 text-base text-gray-700 italic leading-snug">
                       💡 {option.explanation}

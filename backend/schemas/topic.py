@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Union
 from datetime import date, datetime
 
 
@@ -74,7 +74,7 @@ class FlashcardResponseSchema(BaseModel):
 
     class Config:
         from_attributes = True
-
+        
 
 # -------------------------
 # SUBTOPIC
@@ -83,6 +83,15 @@ class SubtopicSchema(BaseModel):
     titulo: str
     descripcion: str
     flashcards: List[FlashcardSchema] = []
+
+    class Config:
+        from_attributes = True
+        
+
+class SubtopicInfoSchema(BaseModel):
+    topic_code: Optional[int]
+    titulo: str
+    descripcion: str
 
     class Config:
         from_attributes = True
@@ -110,11 +119,28 @@ class TopicSchema(BaseModel):
         from_attributes = True
         
 
+class TopicBasicSchema(BaseModel):
+    titulo: str
+    categoria: str
+    descripcion: str
+
+    class Config:
+        from_attributes = True
+
+
 class TopicSubtopicSchema(BaseModel):
     titulo: str
     categoria: str
     descripcion: str
     subtemas: List[str]
+
+    class Config:
+        from_attributes = True
+        
+
+class TopicSubtopicInfoSchema(BaseModel):
+    topic_code: int
+    topic_info: TopicSubtopicSchema
 
     class Config:
         from_attributes = True
@@ -132,7 +158,7 @@ class TopicResponseSchema(BaseModel):
 
 class TopicFormSchema(BaseModel):
     tema: str
-    puntos:  List[str] | None = None
+    puntos: Union[str, List[str]] | None = None
     archivo: str | None = None
     objetivo: str | None = None
 

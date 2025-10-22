@@ -4,12 +4,12 @@ import { useNavigate } from "react-router-dom";
 
 export default function CreateTopicSection() {
   const navigate = useNavigate();
-
+  const today = new Date().toISOString().split("T")[0];
   const [formData, setFormData] = useState({
     tema: "",
     puntos: [],
     archivo: null,
-    objetivo: "",
+    objetivo: today,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -29,7 +29,6 @@ export default function CreateTopicSection() {
 
     try {
       const token = localStorage.getItem("access_token");
-      console.log("Mi TOKEN:"+token);
       if (!token) throw new Error("No autenticado");
 
       const body = {
@@ -41,7 +40,7 @@ export default function CreateTopicSection() {
 
       const response = await fetch(
         //"http://localhost:8000/topics/generar-temario",
-        "http://localhost:8000/topics/generar-subtemas",
+        "http://localhost:8000/topics/generar-temario",
         {
           method: "POST",
           headers: {

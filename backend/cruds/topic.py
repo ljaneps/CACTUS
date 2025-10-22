@@ -54,6 +54,32 @@ def save_topic_from_schema(db: Session, topic_schema: TopicSchema):
 
     return topic_db
 
+#schema
+# class TopicBasicSchema(BaseModel):
+#     titulo: str
+#     categoria: str
+#     descripcion: str
+
+#Model
+# class Topic(Base):
+#     __tablename__ = "topics"
+
+#     topic_code = Column(Integer, primary_key=True,
+#                         index=True, autoincrement=True)
+#     topic_title = Column(String, nullable=False)
+#     category = Column(String, nullable=False)
+#     description = Column(String)
+
+def save_topic(db: Session, titulo: str, categoria: str, descripcion: str = None):
+    topic_db = models.Topic(
+        topic_title=titulo,
+        category=categoria,
+        description=descripcion,
+    )
+    db.add(topic_db)
+    db.commit()
+    db.refresh(topic_db)
+    return topic_db
 
 def save_user_topic(db: Session, username: str, topic_id: int,
                     date_goal: str = None,

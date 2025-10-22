@@ -8,16 +8,15 @@ export function CardDetailComponent({
   respuesta,
   onChange,
   onDelete,
-  topic,
-  subtopic,
 }) {
   const [editando, setEditando] = useState(false);
   const [tempPregunta, setTempPregunta] = useState(pregunta);
   const [tempRespuesta, setTempRespuesta] = useState(respuesta);
 
-  const guardarCambios = () => {
-    onChange(id, "pregunta", tempPregunta);
-    onChange(id, "respuesta", tempRespuesta);
+  const handleSave = () => {
+    if (onChange) {
+      onChange(id, { pregunta: tempPregunta, respuesta: tempRespuesta });
+    }
     setEditando(false);
   };
 
@@ -57,7 +56,7 @@ export function CardDetailComponent({
       <div className="flex sm:flex-col items-center justify-around sm:justify-center gap-3 sm:ml-2">
         {editando ? (
           <button
-            onClick={guardarCambios}
+            onClick={handleSave}
             className="text-white hover:text-primary-medium"
             title="Guardar">
             <Save size={22} />

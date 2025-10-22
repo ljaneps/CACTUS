@@ -1,23 +1,87 @@
 import { useState } from "react";
 import { Edit, Save, Sparkles } from "lucide-react";
 
-export function CardSubtopicEditComponent({ subtopic, onUpdate, onGenerate }) {
+export function CardSubtopicEditComponent({
+  subtopic,
+  topic,
+  onUpdate,
+  onGenerate,
+}) {
   const [editando, setEditando] = useState(false);
   const [tempTitulo, setTempTitulo] = useState(subtopic?.subtopic_title || "");
   const [tempDescripcion, setTempDescripcion] = useState(
     subtopic?.description || ""
   );
 
-  const guardarCambios = () => {
-    if (onUpdate) {
-      onUpdate({
-        id: subtopic.subtopic_code,
-        title: tempTitulo,
-        description: tempDescripcion,
-      });
+const updateSubtopic = async () => {
+  const isNew = subtopic === "new" || subtopic?.isNew;
+
+  try {
+    let response;
+
+    if (isNew) {
+      if (!topic) {
+        alert("No se puede crear el subtopic: falta el topic_code");
+        return;
+      }
+
+      response = await fetch(
+        `http://127.0.0.1:8000/topics/add/subtopics/${topic}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            topic_code: topic, // 🔹 aquí es clave
+            titulo: tempTitulo,
+            descripcion: tempDescripcion,
+          }),
+        }
+      );
+    } else {
+      if (!subtopic?.subtopic_code) {
+        alert("No se puede actualizar: falta el código del subtópico");
+        return;
+      }
+
+      response = await fetch(
+        `http://127.0.0.1:8000/topics/update/subtopics/${subtopic.subtopic_code}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            titulo: tempTitulo,
+            descripcion: tempDescripcion,
+          }),
+        }
+      );
     }
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Error en la petición (${isNew ? "crear" : "actualizar"}): ${errorText}`
+      );
+    }
+
+    const data = await response.json();
+    console.log(
+      `Subtopic ${isNew ? "creado" : "actualizado"} correctamente:`,
+      data
+    );
+
+    if (onUpdate) onUpdate(data);
+
+    setTempTitulo(data.subtopic_title);
+    setTempDescripcion(data.description);
     setEditando(false);
-  };
+  } catch (error) {
+    console.error("Error al procesar el subtopic:", error);
+    alert(
+      "No se pudo procesar el subtopic. Revisa la consola para más detalles."
+    );
+  }
+};
+
 
   return (
     <div className="relative border rounded-lg p-6 shadow-sm mb-8 bg-white">
@@ -33,7 +97,7 @@ export function CardSubtopicEditComponent({ subtopic, onUpdate, onGenerate }) {
           />
         ) : (
           <h1 className="text-2xl font-bold text-emerald-900 uppercase">
-            {subtopic?.subtopic_title || "Título del Subtema"}
+            {tempTitulo || "Título del Subtema"}
           </h1>
         )}
 
@@ -49,7 +113,7 @@ export function CardSubtopicEditComponent({ subtopic, onUpdate, onGenerate }) {
             />
           ) : (
             <p className="flex-1 text-gray-700 border rounded-lg p-6 shadow-sm text-justify">
-              {subtopic?.description || "Aquí irá la descripción del subtema."}
+              {tempDescripcion || "Aquí irá la descripción del subtema."}
             </p>
           )}
 
@@ -57,7 +121,7 @@ export function CardSubtopicEditComponent({ subtopic, onUpdate, onGenerate }) {
           <div className="flex flex-col gap-3">
             {editando ? (
               <button
-                onClick={guardarCambios}
+                onClick={updateSubtopic}
                 className="text-primary hover:text-primary-medium transition"
                 title="Guardar cambios">
                 <Save size={22} />
