@@ -20,8 +20,7 @@ from backend.cruds.topic import *
 from backend.routers.users import get_current_user
 import backend.models as models
 import json5
-
-load_dotenv()
+from fastapi import Body
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 router = APIRouter(prefix="/topics", tags=["Topics"])
@@ -273,7 +272,12 @@ async def generar_temario(
     "titulo": "string",
     "categoria": "string",
     "descripcion": "string",
-    "subtemas": []
+    "subtemas": [
+        {{
+            "titulo": "string",
+            "descripcion": "string"
+        }}
+    ]
     }}
 
     Reglas importantes:
@@ -311,7 +315,16 @@ async def generar_temario(
                         "descripcion": {"type": "string"},
                         "subtemas": {
                             "type": "array",
-                            "items": {"type": "string"}
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "titulo": {"type": "string"},
+                                    "descripcion": {"type": "string"},
+                                },
+                                "required": ["titulo", "descripcion"]
+                            },
+                            "minItems": 4,
+                            "maxItems": 8
                         }
                     },
                     "required": ["titulo", "categoria", "descripcion", "subtemas"]
@@ -325,7 +338,7 @@ async def generar_temario(
         response = await client.post(url, headers=headers, json=payload)
         response.raise_for_status()
         data = response.json()
-        # print("Respuesta completa de OpenRouter:", data)
+        #print("Respuesta completa de OpenRouter:", data)
 
     try:
         raw_message = data["choices"][0]["message"]
@@ -363,6 +376,9 @@ async def generar_temario(
         except json.JSONDecodeError:
             temario_dict = json5.loads(json_str)
 
+        if isinstance(temario_dict.get("subtemas"), dict):
+            temario_dict["subtemas"] = [temario_dict["subtemas"]]
+
         temario = TopicSubtopicSchema(**temario_dict)
 
     except (json.JSONDecodeError, ValidationError) as e:
@@ -371,7 +387,7 @@ async def generar_temario(
         )
 
     new_topic = save_topic(
-        db, temario.titulo, temario.categoria, temario.descripcion)
+        db, temario)
 
     save_user_topic(
         db,
@@ -523,8 +539,9 @@ def create_subtopic(topic_code: int, subtopic: topic_schema.SubtopicInfoSchema, 
     db.refresh(db_subtopic)
     return db_subtopic
 
-
 # DELETE - Delete subtopic
+
+
 @router.delete("/remove/subtopics/{subtopic_code}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_subtopic(subtopic_code: int, db: Session = Depends(get_db)):
     db_subtopic = db.query(models.Subtopic).filter(
@@ -553,152 +570,6 @@ def update_subtopic(subtopic_code: int, subtopic: topic_schema.SubtopicInfoSchem
     return db_subtopic
 
 
-# GENERAR SUBTEMAS
-@router.post("/generar-subtemas")
-async def generar_subtemas(
-    req: TopicSubtopicInfoSchema,
-    db: Session = Depends(get_db),
-):
-
-    puntos_list: list[str] = []
-
-    if req.puntos:
-        if isinstance(req.puntos, str):
-            puntos_list = [p.strip()
-                           for p in req.puntos.splitlines() if p.strip()]
-        elif isinstance(req.puntos, list):
-            puntos_list = req.puntos
-        else:
-            raise HTTPException(
-                status_code=400, detail="Campo 'puntos' debe ser string o lista de strings"
-            )
-
-    # Convertimos a string para el prompt
-    puntos_str = ""
-    if puntos_list:
-        puntos_str = "\n- " + "\n- ".join(puntos_list)
-
-    prompt = f"""
-    Eres un generador de contenido educativo. 
-    Tu tarea es crear un objeto JSON siguiendo **estrictamente** la estructura mostrada a continuación, sin texto adicional fuera del JSON.
-
-    Estructura exacta requerida:
-    {{
-    "titulo": "string",
-    "categoria": "string",
-    "descripcion": "string",
-    "subtemas": []
-    }}
-
-    Reglas importantes:
-    - **No** incluyas texto fuera del JSON.
-    - Usa las claves exactamente como aparecen.
-    - "titulo": debe ser el nombre formal o representativo del tema.
-    - "categoria": clasifica el tema en una categoría general (por ejemplo: Ciencia, Historia, Tecnología, Arte, Salud, etc.).
-    - "descripcion": redacta una breve descripción de 1 a 2 líneas explicando de qué trata el tema.
-    - "subtemas": lista entre 4 y 8 subtemas importantes relacionados, como strings.
-    - Tener en cuenta los "puntos" proporcionados en la lista de subtemas.
-
-    Tema: {req.tema}
-    Puntos clave a considerar: {puntos_str}
-    """
-
-    url = "https://openrouter.ai/api/v1/chat/completions"
-
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "Content-Type": "application/json",
-    }
-
-    payload = {
-        "model": "z-ai/glm-4.5-air:free",
-        "messages": [{"role": "user", "content": prompt}],
-        "response_format": {
-            "type": "json_schema",
-            "json_schema": {
-                "name": "clase",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "titulo": {"type": "string"},
-                        "categoria": {"type": "string"},
-                        "descripcion": {"type": "string"},
-                        "subtemas": {
-                            "type": "array",
-                            "items": {"type": "string"}
-                        }
-                    },
-                    "required": ["titulo", "categoria", "descripcion", "subtemas"]
-                }
-            }
-        },
-        "temperature": 0.7
-    }
-
-    async with httpx.AsyncClient(timeout=httpx.Timeout(120.0)) as client:
-        response = await client.post(url, headers=headers, json=payload)
-        response.raise_for_status()
-        data = response.json()
-        print("Respuesta completa de OpenRouter:", data)
-
-    try:
-        raw_message = data["choices"][0]["message"]
-
-        if isinstance(raw_message, dict) and "content" in raw_message:
-            raw_json = raw_message["content"]
-        elif isinstance(raw_message, str):
-            raw_json = raw_message
-        else:
-            raise HTTPException(
-                status_code=500, detail="La respuesta del modelo no contiene contenido JSON válido.")
-
-        # Limpieza
-        clean_json = (
-            raw_json.replace("“", "\"")
-            .replace("”", "\"")
-            .replace("‘", "'")
-            .replace("’", "'")
-            .replace("\n", " ")
-            .replace("\r", " ")
-        )
-        clean_json = re.sub(r"```(?:json)?", "", clean_json).strip()
-
-        start = clean_json.find("{")
-        end = clean_json.rfind("}")
-        if start == -1 or end == -1 or start >= end:
-            raise HTTPException(
-                status_code=500, detail=f"No se encontró JSON válido en la respuesta. Contenido recibido: {clean_json[:400]}"
-            )
-
-        json_str = clean_json[start:end+1]
-
-        try:
-            temario_dict = json.loads(json_str)
-        except json.JSONDecodeError:
-            temario_dict = json5.loads(json_str)
-
-        temario = TopicSubtopicSchema(**temario_dict)
-
-    except (json.JSONDecodeError, ValidationError) as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error al procesar JSON: {str(e)} | Contenido: {json_str[:400]}"
-        )
-
-    new_topic = save_topic(
-        db, temario.titulo, temario.categoria, temario.descripcion)
-
-    save_user_topic(
-        db,
-        current_user.username,
-        topic_id=new_topic.topic_code,
-        date_goal=req.objetivo
-    )
-
-    print("Tema generado:", temario.titulo)
-
-    return temario
-
-
 #########################################################################
 #
 # FLASCHCARDS
@@ -706,7 +577,7 @@ async def generar_subtemas(
 #########################################################################
 
 # POST - save flashcard
-@router.post("/add/flashcards/", response_model=topic_schema.FlashcardResponseSchema)
+@router.post("/add/flashcards/", response_model=List[topic_schema.FlashcardResponseSchema])
 def create_flashcard(flashcard: topic_schema.FlashcardInfoSchema, db: Session = Depends(get_db)):
     db_flashcard = models.Flashcard(
         subtopic_code=flashcard.subtopic_code,
@@ -747,3 +618,275 @@ def update_flashcard(flashcard_code: int, flashcard: topic_schema.FlashcardSchem
     db.commit()
     db.refresh(db_flashcard)
     return db_flashcard
+
+
+# GENERAR FLASHCARDS POR SUBTOPIC
+@router.post("/generar-flashcards", response_model=List[topic_schema.FlashcardResponseSchema])
+async def generar_flashcards(
+    req: topic_schema.FlashcardRequestSchema = Body(...),
+    db: Session = Depends(get_db),
+):
+    subtopic_code = req.subtopic_code
+    subtopic_title = req.subtopic_title
+
+    prompt = f"""
+    Eres un generador de contenido educativo. 
+    Crea un objeto JSON exactamente con esta estructura:
+    {{
+        "flashcards": [
+            {{
+                "titulo": "string",
+                "explicacion": "string",
+                "preguntas": ["string", "string", "string"]
+            }}
+        ]
+    }}
+    Tema: {subtopic_title}
+    """
+
+    url = "https://openrouter.ai/api/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": "z-ai/glm-4.5-air:free",
+        "messages": [{"role": "user", "content": prompt}],
+        "response_format": {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "flashcards_schema",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "flashcards": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "titulo": {"type": "string"},
+                                    "explicacion": {"type": "string"},
+                                    "preguntas": {
+                                        "type": "array",
+                                        "items": {"type": "string"}
+                                    },
+                                },
+                                "required": ["titulo", "explicacion", "preguntas"]
+                            },
+                            "minItems": 4
+                        }
+                    },
+                    "required": ["flashcards"]
+                }
+            }
+        },
+        "temperature": 0.7,
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(120.0)) as client:
+            response = await client.post(url, headers=headers, json=payload)
+            response.raise_for_status()
+            data = response.json()
+
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 429:
+            raise HTTPException(
+                status_code=429,
+                detail="Demasiadas solicitudes al modelo. Intenta de nuevo en unos minutos."
+            )
+        raise HTTPException(
+            status_code=e.response.status_code,
+            detail=f"Error en la API externa: {e.response.text}"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error llamando al modelo: {str(e)}")
+
+    try:
+        raw_message = data["choices"][0]["message"]
+        if isinstance(raw_message, dict) and "content" in raw_message:
+            raw_json = raw_message["content"]
+        elif isinstance(raw_message, str):
+            raw_json = raw_message
+        else:
+            raise ValueError("Formato inesperado de respuesta")
+
+        clean_json = re.sub(r"```(?:json)?", "", raw_json).strip()
+        start = clean_json.find("{")
+        end = clean_json.rfind("}")
+        if start == -1 or end == -1:
+            raise ValueError("JSON no encontrado en la respuesta")
+
+        json_str = clean_json[start:end + 1]
+        flashcards_list = json.loads(json_str).get("flashcards", [])
+
+        if not flashcards_list:
+            raise ValueError("No se generaron flashcards")
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error procesando JSON: {str(e)}"
+        )
+    print("Flashcards generados con exito ANTES DEL SAVE.")
+    created_flashcards = save_subtopic_flashcards(
+        db, subtopic_code, flashcards_list)
+    print("Flashcards generados con exito.")
+
+    return created_flashcards
+
+
+#########################################################################
+#
+# QUESTIONS
+#
+#########################################################################
+
+# GENERAR OPCIONES POR QUESTION
+@router.post("/generar-opciones", response_model=List[OptionResponseSchema])
+async def generar_opciones(
+        req: Union[topic_schema.QuestionBasicSchema,
+                   List[topic_schema.QuestionBasicSchema]] = Body(...),
+        db: Session = Depends(get_db)):
+
+    preguntas = [req] if isinstance(req, dict) else req
+
+    # Prompt minimalista
+    prompt = f"""
+    Eres un asistente educativo experto.
+    Recibes una lista de preguntas con su código y la respuesta correcta.
+
+    Devuelve un **único objeto JSON** donde cada clave es el código de la pregunta, y su valor tiene la siguiente estructura exacta:
+
+    {{
+    "option_correct": "string — respuesta correcta breve y clara",
+    "explanation": "string — explicación del porqué de la respuesta correcta",
+    "options": ["string", "string", "string"]
+    }}
+
+    Reglas:
+    - Devuelve **solo** el JSON, sin texto adicional.
+    - "options" deben ser tres respuestas incorrectas, pero plausibles.
+    - No incluyas saltos de línea fuera del JSON.
+    - Usa los códigos de pregunta como claves.
+
+    Preguntas:
+    {preguntas}
+    """
+
+    url = "https://openrouter.ai/api/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    payload = {
+        "model": "z-ai/glm-4.5-air:free",
+        "messages": [{"role": "user", "content": prompt}],
+        "response_format": {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "respuestas_por_pregunta",
+                "schema": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                            "option_correct": {"type": "string"},
+                            "explanation": {"type": "string"},
+                            "options": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "minItems": 3,
+                                "maxItems": 3
+                            }
+                        },
+                        "required": ["option_correct", "explanation", "options"]
+                    }
+                }
+            }
+        },
+        "temperature": 0.7
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(120.0)) as client:
+            response = await client.post(url, headers=headers, json=payload)
+            response.raise_for_status()
+            data = response.json()
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 429:
+            raise HTTPException(
+                status_code=429,
+                detail="Demasiadas solicitudes al modelo. Intenta de nuevo en unos minutos."
+            )
+        raise HTTPException(
+            status_code=e.response.status_code,
+            detail=f"Error en la API externa: {e.response.text}"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error llamando al modelo: {str(e)}")
+
+    try:
+        raw_message = data["choices"][0]["message"]
+        if isinstance(raw_message, dict) and "content" in raw_message:
+            raw_json = raw_message["content"]
+        elif isinstance(raw_message, str):
+            raw_json = raw_message
+        else:
+            raise ValueError("Formato inesperado de respuesta")
+
+        clean_json = re.sub(r"```(?:json)?", "", raw_json).strip()
+        start = clean_json.find("{")
+        end = clean_json.rfind("}")
+        if start == -1 or end == -1:
+            raise ValueError("JSON no encontrado en la respuesta")
+        print("JSON recibido (limpio):", clean_json)
+        json_str = clean_json[start:end + 1]
+        questions_list = json.loads(json_str)
+
+        if not questions_list:
+            raise ValueError("No se generaron correctamente las opciones")
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error procesando JSON: {str(e)}"
+        )
+
+    try:
+        respuestas: List[QuestionOptionSchema] = []
+
+        for pregunta in preguntas:
+            qcode = str(pregunta.question_code)
+            letra = getattr(pregunta, "respuesta_correcta", "A")
+
+            if qcode not in questions_list:
+                print(
+                    f"Pregunta {qcode} no encontrada en la respuesta del modelo")
+                continue
+
+            bloque = questions_list[qcode]
+
+            respuesta = QuestionOptionSchema(
+                question_code=int(qcode),
+                letter=letra,
+                response=bloque["option_correct"],
+                explanation=bloque["explanation"],
+                options=bloque.get("options", [])[:3]
+            )
+
+            respuestas.append(respuesta)
+
+        try:
+            save_options_questions(respuestas, db)
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Error al guardar en DB: {str(e)}")
+
+        print("Opciones generadas OK.")
+        return
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error procesando resultados: {str(e)}")

@@ -15,12 +15,16 @@ class OptionSchema(BaseModel):
         from_attributes = True
 
 
+
 class OptionResponseSchema(BaseModel):
+    question_code: int
     letter: str
     option: str
     explanation: Optional[str]
+
     class Config:
-        from_attributes = True
+        orm_mode = True
+
 
 
 # -------------------------
@@ -35,6 +39,26 @@ class QuestionSchema(BaseModel):
         from_attributes = True
         
 
+class QuestionBasicSchema(BaseModel):
+    question_code: int
+    enunciado: str
+    respuesta_correcta: str
+
+    class Config:
+        from_attributes = True
+    
+
+class QuestionOptionSchema(BaseModel):
+    question_code: int
+    letter: str
+    response: str
+    explanation: str
+    options: List[str]
+
+    class Config:
+        from_attributes = True
+
+
 class QuestionResponseSchema(BaseModel):
     question_code: int
     question: str
@@ -42,7 +66,7 @@ class QuestionResponseSchema(BaseModel):
     options: List[OptionResponseSchema] = []
 
     class Config:
-       from_attributes = True
+        from_attributes = True
 
 
 # -------------------------
@@ -52,9 +76,19 @@ class FlashcardSchema(BaseModel):
     titulo: str
     explicacion: str
     preguntas: Optional[List[QuestionSchema]] = []
+
     class Config:
         from_attributes = True
-        
+
+
+class FlashcardBasicSchema(BaseModel):
+    titulo: str
+    explicacion: str
+    preguntas: List[str]
+
+    class Config:
+        from_attributes = True
+
 
 class FlashcardInfoSchema(BaseModel):
     subtopic_code: Optional[int] = None
@@ -64,7 +98,7 @@ class FlashcardInfoSchema(BaseModel):
 
     class Config:
         from_attributes = True
-    
+
 
 class FlashcardResponseSchema(BaseModel):
     flashcard_code: int
@@ -76,6 +110,21 @@ class FlashcardResponseSchema(BaseModel):
         from_attributes = True
         
 
+class FlashcardBasicResponseSchema(BaseModel):
+    flashcard_code: int
+    sentence: str
+    explanation: str
+
+    class Config:
+        from_attributes = True
+        
+
+class FlashcardRequestSchema(BaseModel):
+    subtopic_code: int
+    subtopic_title: str
+
+    class Config:
+        from_attributes = True
 # -------------------------
 # SUBTOPIC
 # -------------------------
@@ -86,7 +135,15 @@ class SubtopicSchema(BaseModel):
 
     class Config:
         from_attributes = True
-        
+
+
+class SubtopicBasicSchema(BaseModel):
+    titulo: str
+    descripcion: str
+
+    class Config:
+        from_attributes = True
+
 
 class SubtopicInfoSchema(BaseModel):
     topic_code: Optional[int]
@@ -109,6 +166,8 @@ class SubtopicResponseSchema(BaseModel):
 # -------------------------
 # TOPIC (root)
 # -------------------------
+
+
 class TopicSchema(BaseModel):
     titulo: str
     categoria: str
@@ -117,7 +176,7 @@ class TopicSchema(BaseModel):
 
     class Config:
         from_attributes = True
-        
+
 
 class TopicBasicSchema(BaseModel):
     titulo: str
@@ -132,11 +191,11 @@ class TopicSubtopicSchema(BaseModel):
     titulo: str
     categoria: str
     descripcion: str
-    subtemas: List[str]
+    subtemas: List[SubtopicBasicSchema]
 
     class Config:
         from_attributes = True
-        
+
 
 class TopicSubtopicInfoSchema(BaseModel):
     topic_code: int
@@ -144,7 +203,8 @@ class TopicSubtopicInfoSchema(BaseModel):
 
     class Config:
         from_attributes = True
-        
+
+
 class TopicResponseSchema(BaseModel):
     topic_code: int
     topic_title: str
@@ -187,5 +247,3 @@ class UserTopicBasicSchema(BaseModel):
 
     class Config:
         from_attributes = True
-
-

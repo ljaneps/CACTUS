@@ -55,10 +55,10 @@ export default function SubTopicUserSection() {
 
       {/* Card para crear nuevo subtema*/}
       <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="w-96 h-72 p-6 bg-gradient-to-b from-primary to-primary-light border-gray-300 rounded-lg shadow-sm dark:bg-white flex flex-col justify-between">
+        <div className="w-96 h-72 p-6 bg-gradient-to-b from-secondary to-primary-light border-gray-300 rounded-lg shadow-sm dark:bg-white flex flex-col justify-between">
           <div>
             <h5 className="mb-5 text-lg font-bold tracking-tight dark:text-gray-200 text-center hover:text-white transition-colors">
-              Crea tu primer subtema
+              Crea tu propio subtema
             </h5>
 
             <p className="mb-2 font-normal text-gray-2 dark:text-gray-300 text-justify">

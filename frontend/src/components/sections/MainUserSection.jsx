@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CardMainTopicComponent } from "../cards/cardMainTopicComponent";
+import { CardMainTopicComponent } from "../cards/CardMainTopicComponent";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 

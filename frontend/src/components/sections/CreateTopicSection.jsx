@@ -39,7 +39,6 @@ export default function CreateTopicSection() {
       };
 
       const response = await fetch(
-        //"http://localhost:8000/topics/generar-temario",
         "http://localhost:8000/topics/generar-temario",
         {
           method: "POST",
@@ -60,11 +59,20 @@ export default function CreateTopicSection() {
       console.log("Tema creado con éxito:", data);
       navigate("/main");
     } catch (err) {
+      console.error("❌ Error en el proceso:", err);
       setError(`Error: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <p className="text-gray-700 text-lg font-medium">Cargando temario...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center bg-gray-50 py-8">

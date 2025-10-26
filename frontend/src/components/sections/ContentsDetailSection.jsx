@@ -15,13 +15,116 @@ export function ContentsDetailSection() {
   const [nuevaPregunta, setNuevaPregunta] = useState("");
   const [nuevaRespuesta, setNuevaRespuesta] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const baseUrl = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000";
 
+  // useEffect(() => {
+  //   setSubtopicState(subtopic ?? null);
+  //   setFlashcards(subtopic?.flashcards ?? []);
+  // }, [subtopic]);
+
+  async function fetchWithRetry(url, options, retries = 3, delay = 5000) {
+    for (let i = 0; i < retries; i++) {
+      const res = await fetch(url, options);
+      if (res.status === 429) {
+        console.warn(
+          `🚫 429 Too Many Requests — reintentando en ${delay / 1000}s...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      } else if (!res.ok) {
+        throw new Error(`Error HTTP ${res.status}`);
+      } else {
+        return res;
+      }
+    }
+    throw new Error("Demasiados intentos fallidos (429).");
+  }
+
   useEffect(() => {
-    setSubtopicState(subtopic ?? null);
-    setFlashcards(subtopic?.flashcards ?? []);
-  }, [subtopic]);
+    const fetchFlashcards = async () => {
+      if (!subtopic?.subtopic_code) return;
+
+      if (!subtopic.flashcards || subtopic.flashcards.length === 0) {
+        try {
+          setLoading(true);
+          const token = localStorage.getItem("access_token");
+          if (!token) throw new Error("No autenticado");
+
+          // 2️⃣ Generar flashcards para cada subtema
+          const flashcardsData = [];
+
+          const resFlashcards = await fetch(
+            "http://localhost:8000/topics/generar-flashcards",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                subtopic_code: subtopic.subtopic_code,
+                subtopic_title:
+                  subtopic.subtopic_title + " sobre " + topic.topic_title,
+              }),
+            }
+          );
+
+          if (!resFlashcards.ok)
+            throw new Error(
+              `Error generando flashcards para ${subtopic.subtopic_title}`
+            );
+          const flashcardData = await resFlashcards.json();
+          flashcardsData.push(...flashcardData);
+          setFlashcards(flashcardsData);
+
+          console.log("✅ Flashcards generadas:", flashcardsData);
+
+          // 3️⃣ Generar opciones para todas las preguntas
+          const allQuestions = flashcardsData.flatMap((fc) => fc.questions);
+          console.log("Todas las preguntas:", allQuestions);
+          const faltanOpciones = allQuestions.some(
+            (q) => !q.options || q.options.length === 0
+          );
+
+          if (faltanOpciones) {
+            console.log("⏳ Esperando 5 segundos antes de generar opciones...");
+            await new Promise((resolve) => setTimeout(resolve, 5000));
+
+            const resOpciones = await fetchWithRetry(
+              "http://localhost:8000/topics/generar-opciones",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(
+                  allQuestions.map((q) => ({
+                    question_code: q.question_code,
+                    enunciado: q.question,
+                    respuesta_correcta: q.option_correct_letter,
+                  }))
+                ),
+              }
+            );
+
+            if (!resOpciones.ok) throw new Error("Error generando opciones");
+            console.log("✅ Opciones generadas");
+          }
+
+          console.log("✅ Opciones generadas");
+        } catch (err) {
+          console.error("❌ Error en el proceso:", err);
+          setError(`Error: ${err.message}`);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchFlashcards();
+  }, []);
 
   const crearFlashcard = async () => {
     if (!subtopicState?.subtopic_code)
@@ -98,6 +201,14 @@ export function ContentsDetailSection() {
       alert("No se pudo eliminar la flashcard.");
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <p className="text-gray-700 text-lg font-medium">Cargando temario...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">

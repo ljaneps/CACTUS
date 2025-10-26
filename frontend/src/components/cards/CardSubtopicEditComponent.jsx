@@ -31,7 +31,7 @@ const updateSubtopic = async () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            topic_code: topic, // 🔹 aquí es clave
+            topic_code: topic, 
             titulo: tempTitulo,
             descripcion: tempDescripcion,
           }),
