@@ -19,25 +19,25 @@ export function ContentsDetailSection() {
 
   const baseUrl = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000";
 
-  // useEffect(() => {
-  //   setSubtopicState(subtopic ?? null);
-  //   setFlashcards(subtopic?.flashcards ?? []);
-  // }, [subtopic]);
-
   async function fetchWithRetry(url, options, retries = 3, delay = 5000) {
     for (let i = 0; i < retries; i++) {
       const res = await fetch(url, options);
+
       if (res.status === 429) {
         console.warn(
-          `🚫 429 Too Many Requests — reintentando en ${delay / 1000}s...`
+          `429 Too Many Requests — reintentando en ${delay / 1000}s...`
         );
         await new Promise((resolve) => setTimeout(resolve, delay));
-      } else if (!res.ok) {
-        throw new Error(`Error HTTP ${res.status}`);
-      } else {
-        return res;
+        continue;
       }
+
+      if (!res.ok) {
+        throw new Error(`Error HTTP ${res.status}`);
+      }
+
+      return res;
     }
+
     throw new Error("Demasiados intentos fallidos (429).");
   }
 
@@ -51,11 +51,11 @@ export function ContentsDetailSection() {
           const token = localStorage.getItem("access_token");
           if (!token) throw new Error("No autenticado");
 
-          // 2️⃣ Generar flashcards para cada subtema
+          //Generar flashcards para cada subtema
           const flashcardsData = [];
 
           const resFlashcards = await fetch(
-            "http://localhost:8000/topics/generar-flashcards",
+            `${baseUrl}/topics/generar-flashcards`,
             {
               method: "POST",
               headers: {
@@ -78,9 +78,9 @@ export function ContentsDetailSection() {
           flashcardsData.push(...flashcardData);
           setFlashcards(flashcardsData);
 
-          console.log("✅ Flashcards generadas:", flashcardsData);
+          console.log("Flashcards generadas:", flashcardsData);
 
-          // 3️⃣ Generar opciones para todas las preguntas
+          // Generar opciones para todas las preguntas
           const allQuestions = flashcardsData.flatMap((fc) => fc.questions);
           console.log("Todas las preguntas:", allQuestions);
           const faltanOpciones = allQuestions.some(
@@ -88,11 +88,11 @@ export function ContentsDetailSection() {
           );
 
           if (faltanOpciones) {
-            console.log("⏳ Esperando 5 segundos antes de generar opciones...");
-            await new Promise((resolve) => setTimeout(resolve, 5000));
+            console.log("Esperando 5 segundos antes de generar opciones...");
+            await new Promise((resolve) => setTimeout(resolve, 30000));
 
             const resOpciones = await fetchWithRetry(
-              "http://localhost:8000/topics/generar-opciones",
+              `${baseUrl}/topics/generar-opciones`,
               {
                 method: "POST",
                 headers: {
@@ -110,12 +110,10 @@ export function ContentsDetailSection() {
             );
 
             if (!resOpciones.ok) throw new Error("Error generando opciones");
-            console.log("✅ Opciones generadas");
+            console.log("Opciones generadas");
           }
-
-          console.log("✅ Opciones generadas");
         } catch (err) {
-          console.error("❌ Error en el proceso:", err);
+          console.error("Error en el proceso:", err);
           setError(`Error: ${err.message}`);
         } finally {
           setLoading(false);
@@ -126,6 +124,9 @@ export function ContentsDetailSection() {
     fetchFlashcards();
   }, []);
 
+  /********************************************************** */
+  /*  Crear flashcard  */
+  /********************************************************** */
   const crearFlashcard = async () => {
     if (!subtopicState?.subtopic_code)
       return alert("Falta el código del subtema.");
@@ -158,6 +159,9 @@ export function ContentsDetailSection() {
     }
   };
 
+  /********************************************************** */
+  /*  Actualizar flashcard  */
+  /********************************************************** */
   const actualizarCampo = async (id, nuevosDatos) => {
     const titulo = (nuevosDatos.pregunta ?? "").trim();
     const explicacion = (nuevosDatos.respuesta ?? "").trim();
@@ -187,6 +191,9 @@ export function ContentsDetailSection() {
     }
   };
 
+  /********************************************************** */
+  /*  Eliminar flashcard  */
+  /********************************************************** */
   const eliminarPregunta = async (id) => {
     if (!window.confirm("¿Seguro que deseas eliminar esta flashcard?")) return;
 

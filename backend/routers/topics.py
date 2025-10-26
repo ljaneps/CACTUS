@@ -16,7 +16,7 @@ from backend.database import SessionLocal
 from backend.schemas .topic import *
 from backend.schemas import topic as topic_schema
 from backend.schemas import user as user_schema
-from backend.cruds.topic import *
+from backend.cruds import *
 from backend.routers.users import get_current_user
 import backend.models as models
 import json5
@@ -424,6 +424,19 @@ def get_all_topics(db: Session = Depends(get_db)):
     return topics
 
 
+#DELETE - Eliminar un TOPIC
+@router.delete("/topics/{topic_code}")
+def delete_topic(topic_code: int, db: Session = Depends(get_db)):
+    topic = db.query(models.Topic).filter_by(topic_code=topic_code).first()
+
+    if not topic:
+        raise HTTPException(status_code=404, detail="Topic no encontrado")
+
+    db.delete(topic)  # 🔹 Esto dispara la cascada ORM correctamente
+    db.commit()
+
+    return {"message": f"Topic {topic_code} eliminado correctamente"}
+
 # TOPICS por USUARIO
 
 # GET - Obtener los temarios del usuario
@@ -630,18 +643,25 @@ async def generar_flashcards(
     subtopic_title = req.subtopic_title
 
     prompt = f"""
-    Eres un generador de contenido educativo. 
-    Crea un objeto JSON exactamente con esta estructura:
+    Eres un generador de contenido educativo experto.
+    Debes crear 1 o 2 flashcards relacionadas con el siguiente subtema:
+    "{subtopic_title}"
+
+    Cada flashcard debe tener:
+    - Un "titulo" claro y conciso.
+    - Una "explicacion" breve que ayude a entender el concepto.
+    - Una lista "preguntas" con 1 o 2 preguntas de repaso (en formato texto).
+
+    Devuelve **solo** un objeto JSON con la siguiente estructura exacta:
     {{
         "flashcards": [
             {{
                 "titulo": "string",
                 "explicacion": "string",
-                "preguntas": ["string", "string", "string"]
+                "preguntas": ["string", "string"]
             }}
         ]
     }}
-    Tema: {subtopic_title}
     """
 
     url = "https://openrouter.ai/api/v1/chat/completions"
@@ -668,12 +688,15 @@ async def generar_flashcards(
                                     "explicacion": {"type": "string"},
                                     "preguntas": {
                                         "type": "array",
-                                        "items": {"type": "string"}
+                                        "items": {"type": "string"},
+                                        "minItems": 1,
+                                        "maxItems": 2
                                     },
                                 },
                                 "required": ["titulo", "explicacion", "preguntas"]
                             },
-                            "minItems": 4
+                            "minItems": 1,
+                            "maxItems": 2
                         }
                     },
                     "required": ["flashcards"]
@@ -743,7 +766,7 @@ async def generar_flashcards(
 #########################################################################
 
 # GENERAR OPCIONES POR QUESTION
-@router.post("/generar-opciones", response_model=List[OptionResponseSchema])
+@router.post("/generar-opciones")
 async def generar_opciones(
         req: Union[topic_schema.QuestionBasicSchema,
                    List[topic_schema.QuestionBasicSchema]] = Body(...),

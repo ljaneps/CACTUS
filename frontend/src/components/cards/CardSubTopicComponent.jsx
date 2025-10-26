@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BookOpenText, Library, BookCheck } from "lucide-react";
+import { BookOpenText, Edit, BookCheck } from "lucide-react";
 
 export function CardSubTopicComponent({
   topic,
@@ -89,7 +89,7 @@ export function CardSubTopicComponent({
           onClick={handleListClick}
           className="text-white hover:text-primary-medium"
           title="Flashcards detalle">
-          <Library size={26} />
+          <Edit size={26} />
         </button>
 
         {/* Botón 3 - TEST */}

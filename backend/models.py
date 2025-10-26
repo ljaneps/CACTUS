@@ -127,7 +127,7 @@ class UserTopic(Base):
     topic = relationship("Topic", back_populates="users")
 
 ##########################################################################
-#                            USER FLASHCARDS                              #
+#                            USER FLASHCARDS                             #
 ##########################################################################
 
 class UserFlashcard(Base):
@@ -148,11 +148,14 @@ class UserQuestion(Base):
     __tablename__ = "user_questions"
 
     username = Column(String, ForeignKey("users.username"), primary_key=True)
+    topic_code = Column(Integer, ForeignKey("topics.topic_code"), primary_key=True)
     question_code = Column(Integer, ForeignKey("questions.question_code"), primary_key=True)
-    is_low_box = Column(Boolean, default=False)
-    is_intermediate_box = Column(Boolean, default=False)
-    is_high_box = Column(Boolean, default=False)
+    level = Column(Integer, default=1)
+    streak = Column(Integer, default=0)
+    last_result = Column(String, default="none")
     favourite = Column(Boolean, default=False)
 
     user = relationship("User", back_populates="questions")
+    topic = relationship("Topic")
     question = relationship("Question", back_populates="users")
+
