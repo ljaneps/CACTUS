@@ -36,9 +36,24 @@ class UserQuestionResponse(BaseModel):
     favourite: bool
     
 
+class UserQuestionFavouriteUpdate(BaseModel):
+    username: str
+    topic_code: int
+    question_code: int
+    favourite: bool
+
 class UserQuestionsPayload(BaseModel):
     user_questions: List[UserQuestionResponse]
 
 
 class UserQuestionRequest(BaseModel):
     topic_question_codes: list[int]
+
+
+class UserFlashcardFavouriteUpdate(BaseModel):
+    username: str
+    topic_code: int
+    flashcard_code: int
+    favourite: bool
+    
+    

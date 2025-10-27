@@ -13,6 +13,7 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from backend import models, database
 from backend.schemas import user as user_schema
+from backend.schemas import topic as topic_schema
 from backend.utils.security import hash_password, verify_password
 from fastapi.security import OAuth2PasswordBearer
 from dotenv import load_dotenv
@@ -189,7 +190,7 @@ def add_or_update_user_question(
     payload: dict = Body(...),
     db: Session = Depends(get_db)
 ):
-    print("📩 Recibido:", payload)
+    # print("Recibido:", payload)
 
     user_questions = payload.get("user_questions", [])
     for uq in user_questions:
@@ -218,7 +219,6 @@ def add_or_update_user_question(
 
     db.commit()
 
-    # Actualizar progreso por topic
     user_questions = payload.get("user_questions", [])
     if user_questions:
         topic_codes = set(uq["topic_code"] for uq in user_questions)
@@ -228,3 +228,152 @@ def add_or_update_user_question(
                 db, username=username, topic_code=topic_code)
 
     return {"detail": "User questions added or updated successfully"}
+
+
+# UPDATE favorito user-question
+
+@router.post("/update-favourite-question")
+def update_user_question_favourite(
+    request: user_schema.UserQuestionFavouriteUpdate = Body(...),
+    db: Session = Depends(get_db)
+):
+    username = request.username
+    topic_code = request.topic_code
+    question_code = request.question_code
+    favourite = request.favourite
+
+    user_question = db.query(models.UserQuestion).filter(
+        (models.UserQuestion.username == username) &
+        (models.UserQuestion.topic_code == topic_code) &
+        (models.UserQuestion.question_code == question_code)
+    ).first()
+
+    if not user_question:
+        raise HTTPException(status_code=404, detail="UserQuestion not found")
+
+    user_question.favourite = favourite
+    db.commit()
+
+    return {"detail": "User question favourite updated successfully"}
+
+
+# Obtener favoritos user-qeuestions con username, favourite=True y topic_code dado
+@router.get("/favourite-questions/{username}", response_model=List[user_schema.UserQuestionResponse])
+def get_favourite_user_questions(
+    username: str,
+    topic_code: int = Query(...,
+                            description="Topic code to filter favourite questions"),
+    db: Session = Depends(get_db)
+):
+    favourite_questions = db.query(models.UserQuestion).filter(
+        (models.UserQuestion.username == username) &
+        (models.UserQuestion.topic_code == topic_code) &
+        (models.UserQuestion.favourite == True)
+    ).all()
+
+    return favourite_questions
+
+# UPDATE favoritos user-flashcard
+
+
+@router.post("/update-favourite-flashcard")
+def update_user_flashcard_favourite(
+    req: user_schema.UserFlashcardFavouriteUpdate = Body(...),
+    db: Session = Depends(get_db)
+):
+    user_flashcard = db.query(models.UserFlashcard).filter(
+        (models.UserFlashcard.username == req.username) &
+        (models.UserFlashcard.topic_code == req.topic_code) &
+        (models.UserFlashcard.flashcard_code == req.flashcard_code)
+    ).first()
+
+    if not user_flashcard:
+        raise HTTPException(status_code=404, detail="UserFlashcard not found")
+
+    user_flashcard.favourite = req.favourite
+    db.commit()
+
+    return {"detail": "User flashcard favourite updated successfully"}
+
+
+# Obtener favorito user-flashcard con username, topic_code, favourite=True
+@router.get("/favourite-flashcards/{username}", response_model=List[user_schema.UserFlashcardFavouriteUpdate])
+def get_favourite_user_flashcards(
+    username: str,
+    topic_code: int = Query(...,
+                            description="Topic code to filter favourite flashcards"),
+    db: Session = Depends(get_db)
+):
+    favourite_flashcards = db.query(models.UserFlashcard).filter(
+        (models.UserFlashcard.username == username) &
+        (models.UserFlashcard.topic_code == topic_code) &
+        (models.UserFlashcard.favourite == True)
+    ).all()
+
+    return favourite_flashcards
+
+
+# Genera un test general adaptativo tipo Leitner
+# Después de obtener la lista List[user_schema.UserQuestionResponse], con el los question_code, obtener las preguntas completas
+# de la tabla questions, y devolver lista de QuestionSchema
+
+def get_leitner_test_questions(db, username: str, topic_code: int, total: int = 20):
+    user_questions = db.query(models.UserQuestion).filter_by(
+        username=username,
+        topic_code=topic_code
+    ).all()
+
+    level_1 = [uq for uq in user_questions if uq.level == 1]
+    level_2 = [uq for uq in user_questions if uq.level == 2]
+    level_3 = [uq for uq in user_questions if uq.level == 3]
+
+    n1 = round(total * 0.6)
+    n2 = round(total * 0.3)
+    n3 = total - n1 - n2
+
+    import random
+    selected = random.sample(level_1, min(n1, len(level_1))) \
+        + random.sample(level_2, min(n2, len(level_2))) \
+        + random.sample(level_3, min(n3, len(level_3)))
+
+    random.shuffle(selected)
+
+    return selected
+
+
+@router.get("/test/general/{username}/{topic_code}", response_model=list[topic_schema.QuestionResponseSchema])
+def get_general_test(username: str, topic_code: int, db: Session = Depends(get_db)):
+    questions = get_leitner_test_questions(
+        db, username=username, topic_code=topic_code, total=20
+    )
+
+    question_objs = []
+
+    for uq in questions:
+        q = db.query(models.Question).filter_by(
+            question_code=uq.question_code
+        ).first()
+
+        if q:
+            options = db.query(models.Option).filter_by(
+                question_code=q.question_code
+            ).all()
+
+            option_objs = [
+                {
+                    "question_code": opt.question_code,
+                    "letter": opt.letter,
+                    "option": opt.option,
+                    "explanation": opt.explanation,
+                }
+                for opt in options
+            ]
+
+            question_objs.append({
+                "question_code": q.question_code,
+                "question": q.question,
+                "option_correct_letter": q.option_correct_letter,
+                "options": option_objs,
+            })
+
+    return question_objs

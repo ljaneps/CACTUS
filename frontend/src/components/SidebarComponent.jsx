@@ -3,13 +3,15 @@ import BoxAltoIcon from "../assets/icons/icon_box_alto.svg";
 import BoxBajoIcon from "../assets/icons/icon_box_bajo.svg";
 import BoxMedioIcon from "../assets/icons/icon_box_medio.svg";
 import { useSidebar } from "../context/SidebarContext";
+import { useNavigate } from "react-router-dom";
 import LogoutButton from "./LogoutComponent";
-import { FlagTriangleLeft, CalendarClock, Star, Home } from "lucide-react";
-
-const navigation = [
-  { name: "Home", icon: Home, href: "/main", current: false },
-  { name: "Favoritos", icon: Star, href: "/create-topic", current: false },
-];
+import {
+  FlagTriangleLeft,
+  CalendarClock,
+  Star,
+  Home,
+  Globe,
+} from "lucide-react";
 
 const getColorClass = (c) =>
   c === "bajo"
@@ -24,6 +26,28 @@ function classNames(...classes) {
 
 export default function SidebarComponent() {
   const { user, selectedTopic } = useSidebar();
+  const navigate = useNavigate();
+
+  const navigation = [
+    { name: "Home", icon: Home, href: "/main", current: false },
+    {
+      name: "Test General",
+      icon: Globe,
+      href: "/test-general",
+      current: false,
+    },
+  ];
+
+  const handleNavigation = (item) => {
+    const topic = selectedTopic.topic;
+    if (item.name === "Test General") {
+      navigate("/test-general", {
+        state: { topic , isGeneralTest: true },
+      });
+    } else {
+      navigate(item.href);
+    }
+  };
 
   const progreso = [
     {
@@ -69,22 +93,22 @@ export default function SidebarComponent() {
       {/* Navigation */}
       <nav className="flex-1 px-2 py-4 space-y-3">
         {navigation.map((item) => (
-          <a
+          <button
             key={item.name}
-            href={item.href}
+            onClick={() => handleNavigation(item)}
             className={classNames(
               item.current
                 ? "bg-primary/10 text-primary"
                 : "text-primary hover:text-primary-medium hover:bg-primary/5",
-              "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors duration-200"
+              "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors duration-200 w-full text-left"
             )}>
             <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
             {item.name}
-          </a>
+          </button>
         ))}
 
         {/* Objetivo */}
-        <div className="mt-6">
+        {/* <div className="mt-6">
           <a className="group flex items-center px-2 py-4">
             <CalendarClock className="mr-3 h-5 w-5 flex-shrink-0 text-primary" />
             <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -97,7 +121,7 @@ export default function SidebarComponent() {
               {selectedTopic?.date_ini} - {selectedTopic?.date_goal}
             </span>
           </div>
-        </div>
+        </div> */}
 
         {/* Progreso */}
         <div className="mt-6">

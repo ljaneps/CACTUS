@@ -154,7 +154,7 @@ def save_subtopic_flashcards(
                 subtopic=subtopic_db
             )
             db.add(flash_db)
-            db.flush()  # Para obtener el ID
+            db.flush()  
 
             question_objects = []
             for pregunta in preguntas:
@@ -165,13 +165,13 @@ def save_subtopic_flashcards(
                     option_correct_letter=correct_letter
                 )
                 db.add(question_db)
-                db.flush()  # Para obtener el question_code
+                db.flush()  
 
                 question_objects.append({
                     "question_code": question_db.question_code,
                     "question": question_db.question,
                     "option_correct_letter": question_db.option_correct_letter,
-                    "options": []  # aún no generadas
+                    "options": []  
                 })
 
             created_flashcards.append({

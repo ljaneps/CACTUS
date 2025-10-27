@@ -16,7 +16,7 @@ from backend.database import SessionLocal
 from backend.schemas .topic import *
 from backend.schemas import topic as topic_schema
 from backend.schemas import user as user_schema
-from backend.cruds import *
+from backend.cruds.topics_crud import *
 from backend.routers.users import get_current_user
 import backend.models as models
 import json5
@@ -198,8 +198,6 @@ async def generar_temario(
             .replace("\r", " ")
         )
         clean_json = re.sub(r"```(?:json)?", "", clean_json).strip()
-
-        # Extrae el bloque JSON (primer { hasta último })
         start = clean_json.find("{")
         end = clean_json.rfind("}")
         if start == -1 or end == -1 or start >= end:
@@ -209,7 +207,6 @@ async def generar_temario(
 
         json_str = clean_json[start:end+1]
 
-        # Intentar parsear con json y luego con json5
         try:
             temario_dict = json.loads(json_str)
         except json.JSONDecodeError:
@@ -338,7 +335,7 @@ async def generar_temario(
         response = await client.post(url, headers=headers, json=payload)
         response.raise_for_status()
         data = response.json()
-        #print("Respuesta completa de OpenRouter:", data)
+        # print("Respuesta completa de OpenRouter:", data)
 
     try:
         raw_message = data["choices"][0]["message"]
@@ -351,7 +348,6 @@ async def generar_temario(
             raise HTTPException(
                 status_code=500, detail="La respuesta del modelo no contiene contenido JSON válido.")
 
-        # Limpieza
         clean_json = (
             raw_json.replace("“", "\"")
             .replace("”", "\"")
@@ -408,7 +404,6 @@ async def generar_temario_mock(
         topic: TopicSchema,  # <- Aquí recibes directamente el JSON
         db: Session = Depends(get_db)):
 
-    # Validación y guardado
     save_topic_from_schema(db, topic)
 
     return topic
@@ -424,7 +419,7 @@ def get_all_topics(db: Session = Depends(get_db)):
     return topics
 
 
-#DELETE - Eliminar un TOPIC
+# DELETE - Eliminar un TOPIC
 @router.delete("/topics/{topic_code}")
 def delete_topic(topic_code: int, db: Session = Depends(get_db)):
     topic = db.query(models.Topic).filter_by(topic_code=topic_code).first()
@@ -432,7 +427,7 @@ def delete_topic(topic_code: int, db: Session = Depends(get_db)):
     if not topic:
         raise HTTPException(status_code=404, detail="Topic no encontrado")
 
-    db.delete(topic)  # 🔹 Esto dispara la cascada ORM correctamente
+    db.delete(topic)
     db.commit()
 
     return {"message": f"Topic {topic_code} eliminado correctamente"}
@@ -440,6 +435,8 @@ def delete_topic(topic_code: int, db: Session = Depends(get_db)):
 # TOPICS por USUARIO
 
 # GET - Obtener los temarios del usuario
+
+
 @router.get("/topics-by-user/{username}", response_model=list[topic_schema.UserTopicBasicSchema])
 def get_user_topics(username: str, db: Session = Depends(get_db)):
     user_topics = (
@@ -774,7 +771,6 @@ async def generar_opciones(
 
     preguntas = [req] if isinstance(req, dict) else req
 
-    # Prompt minimalista
     prompt = f"""
     Eres un asistente educativo experto.
     Recibes una lista de preguntas con su código y la respuesta correcta.

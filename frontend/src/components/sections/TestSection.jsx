@@ -9,24 +9,35 @@ export function TestSection() {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const { subtopic, topic } = location.state || {};
+  const { subtopic, topic, isGeneralTest = false } = location.state || {};
   const flashcards = subtopic?.flashcards || [];
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [showResult, setShowResult] = useState(false);
   const [viewedQuestions, setViewedQuestions] = useState([]);
+  const [testQuestions, setTestQuestions] = useState([]);
 
-  const allQuestions = useMemo(
+  const flashcardQuestions = useMemo(
     () => flashcards.flatMap((fc) => fc.questions || []),
     [flashcards]
   );
+  const allQuestions = useMemo(() => {
+    if (isGeneralTest) {
+      return testQuestions; // De método Leitner
+    }
+    return flashcardQuestions; // De las flashcards
+  }, [isGeneralTest, testQuestions, flashcardQuestions]);
 
   const currentQuestion = allQuestions[currentIndex];
 
   const [userQuestions, setUserQuestions] = useState([]);
 
+  {
+    /* Progreso ********************************** */
+  }
+
   useEffect(() => {
-    if (allQuestions.length === 0 || !user?.username) return;
+    if (!user?.username || allQuestions.length === 0) return;
 
     const questions_codes_list = allQuestions.map((q) => q.question_code);
 
@@ -36,12 +47,27 @@ export function TestSection() {
       body: JSON.stringify({ topic_question_codes: questions_codes_list }),
     })
       .then((res) => res.json())
-      .then((data) => {
-        console.log("User questions:", data);
-        setUserQuestions(data);
-      })
+      .then((data) => setUserQuestions(data))
       .catch((err) => console.error("Error fetching user questions:", err));
-  }, [user?.username, allQuestions.length]);
+  }, [user?.username, allQuestions]);
+
+  {
+    /* Leitner ********************************** */
+  }
+
+  useEffect(() => {
+    if (!isGeneralTest || !user?.username || !topic?.topic_code) return;
+
+    fetch(
+      `http://localhost:8000/users/test/general/${user.username}/${topic.topic_code}`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Preguntas del test Leitner:", data);
+        setTestQuestions(data);
+      })
+      .catch((err) => console.error("Error fetching Leitner test:", err));
+  }, [isGeneralTest, user?.username, topic?.topic_code]);
 
   const processUserQuestions = () => {
     const updatedQuestions = allQuestions.map((q, index) => {
@@ -82,7 +108,10 @@ export function TestSection() {
       };
     });
 
-    // Enviar al backend
+    {
+      /* Enviar al backend ********************************** */
+    }
+
     fetch("http://localhost:8000/users/add-or-update", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -95,22 +124,21 @@ export function TestSection() {
       .catch((err) => console.error("Error updating questions:", err));
   };
 
-  //Ordenamos las opciones
-  const options = currentQuestion?.options?.map((opt) => ({
-    value: opt.letter,
-    label: `${opt.letter}. ${opt.option}`,
-    explanation: opt.explanation,
-    isCorrect: opt.letter === currentQuestion.option_correct_letter,
-  }))
-    ? sortOptions(
-        currentQuestion.options.map((opt) => ({
-          value: opt.letter,
-          label: `${opt.letter}. ${opt.option}`,
-          explanation: opt.explanation,
-          isCorrect: opt.letter === currentQuestion.option_correct_letter,
-        }))
-      )
-    : [];
+  {
+    /* Ordenamos las opciones ********************************** */
+  }
+
+  const options = useMemo(() => {
+    if (!currentQuestion?.options) return [];
+    return sortOptions(
+      currentQuestion.options.map((opt) => ({
+        value: opt.letter,
+        label: `${opt.letter}. ${opt.option}`,
+        explanation: opt.explanation,
+        isCorrect: opt.letter === currentQuestion.option_correct_letter,
+      }))
+    );
+  }, [currentQuestion]);
 
   const handleOptionChange = (value) => {
     const isCorrect = value === currentQuestion.option_correct_letter;

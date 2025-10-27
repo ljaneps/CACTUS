@@ -40,6 +40,7 @@ export default function Home() {
               element={<ContentDetailPage />}
             />
             <Route path="subMain/:topicId/go-test" element={<TestPage />} />
+            <Route path="test-general" element={<TestPage />} />
             <Route path="subMain/:topicId/study" element={<FlashcardsPage />} />
             <Route
               path="subMain/:topicId/new-sub"

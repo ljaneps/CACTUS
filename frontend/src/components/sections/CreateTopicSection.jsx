@@ -59,7 +59,7 @@ export default function CreateTopicSection() {
       console.log("Tema creado con éxito:", data);
       navigate("/main");
     } catch (err) {
-      console.error("❌ Error en el proceso:", err);
+      console.error("Error en el proceso:", err);
       setError(`Error: ${err.message}`);
     } finally {
       setLoading(false);
@@ -112,7 +112,7 @@ export default function CreateTopicSection() {
           />
         </div>
 
-        <div>
+        {/* <div>
           <label className="block font-medium text-sm mb-1">
             Adjuntar archivo
           </label>
@@ -135,7 +135,7 @@ export default function CreateTopicSection() {
             onChange={handleChange}
             className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
           />
-        </div>
+        </div> */}
 
         <div className="flex justify-center">
           <ButtonComponent
