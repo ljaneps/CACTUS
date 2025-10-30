@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BookOpenText, Edit, BookCheck } from "lucide-react";
+import { BookOpenText, Edit, BookCheck, Trash } from "lucide-react";
 
 export function CardSubTopicComponent({
   topic,
@@ -107,6 +107,14 @@ export function CardSubTopicComponent({
               : "No hay flashcards disponibles para realizar el test"
           }>
           <BookCheck size={26} />
+        </button>
+
+        {/* Botón 2 - List detail Flashcards */}
+        <button
+          onClick={handleListClick}
+          className="text-white hover:text-primary-medium"
+          title="Eliminar Subtema">
+          <Trash size={26} />
         </button>
       </div>
     </div>

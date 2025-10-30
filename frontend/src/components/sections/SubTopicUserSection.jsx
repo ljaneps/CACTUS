@@ -79,7 +79,7 @@ export default function SubTopicUserSection() {
         </div>
 
         {topicData?.subtopics?.map((subtopic) => (
-          <div key={subtopic.subtopic_code}>
+          <div key={subtopic.subtopic_code} className="flex items-center">
             <CardSubTopicComponent
               topic={topicData}
               subtopic={subtopic}
